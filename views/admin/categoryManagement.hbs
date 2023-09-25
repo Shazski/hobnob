@@ -1,0 +1,93 @@
+<div class="container">
+  <div>
+    <div class="d-flex justify-content-between">
+      <form action="/admin/category-management" method="get" class="d-flex justify-content-start">
+        <div class="text-start d-flex ms-3">
+<input type="search" class="form-control text-start ms-5 rounded-3"  placeholder="Search Category" aria-label="Search" aria-describedby="search-addon" name="search" style="font-size: 12px; padding: 0.25rem 0.5rem;">
+          <button style="border: none;background-color:transparent;" type="submit" class="fas fa-search"></button>
+        </div>
+      </form>
+     <!-- Button trigger modal -->
+ <button class="btn text-white btn-sm " data-bs-toggle="modal" data-bs-target="#exampleModal" style="background-color: #088173;height: 30px;"> <i class="fa fa-plus"></i>Add Category</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-6" id="exampleModalLabel">Add Category</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{#if categoryError}}
+        <p class="text-danger fw-bold">{{categoryError}}</p>
+        {{/if}}
+        <form action="/admin/category-management" method="post">
+            <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Enter Category</label>
+    <input placeholder="Enter Category Name..." type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-sm btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+    <table class="table table-responsive-sm align-middle mb-0 bg-white mt-1">
+      <thead class="bg-light ">
+        <tr style="font-size: 12px;" class="rounded-5">
+          <th>Category</th>
+          <th>Sales</th>
+          <th>Stock</th>
+          <th>Added</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each categoryDetails}}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="ms-2">
+                <p class="fw-bold mb-0" style="font-size: 12px;">{{category}}</p>
+              </div>
+            </div>
+          </td>
+          <td>
+            <p class="fw-normal mb-0" style="font-size: 12px;">2300</p>
+          </td>
+          <td style="font-size: 12px;">345</td>
+          <td style="font-size: 12px;">{{created}}</td>
+ 
+          <td>
+            <a href="/admin/edit-category/{{_id}}" class="" ><img width="10px" src="/assets/pen.png" alt="" srcset="" style="width:20px"></a>
+            <a href="/admin/delete-category{{_id}}" class="" ><img width="10px" src="/assets/trash.png" alt="" srcset="" style="width:20px"></a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/admin/category-management?page={{prevPage}}&search={{search}}" class="page-link">Previous</a>
+    </li>
+    {{#each pages}}
+    <li class="page-item">
+      <a class="page-link" href="/admin/category-management?page={{this}}&search={{search}}">{{this}}</a>
+    </li>
+    {{/each}}
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/admin/category-management?page={{nextPage}}&search={{search}}">Next</a>
+    </li>
+  </ul>
+</nav>
+
+  </div>
+</div>
+
+

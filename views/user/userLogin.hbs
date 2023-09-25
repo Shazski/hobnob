@@ -1,0 +1,80 @@
+<!-- Section: Design Block -->
+<section class="background-radial-gradient overflow-hidden py-1">
+  <div
+    class="container px-4 py-5 px-md-5  d-flex justify-content-center text-start my-5"
+  >
+    <div
+      class="row gx-lg-5 d-flex justify-content-center align-items-center mb-5"
+    >
+
+      <div class="col-lg-6 mb-5 mb-lg-0 position-relative">
+        <div
+          id="radius-shape-1"
+          class="position-absolute rounded-circle shadow-5-strong"
+        ></div>
+        <div
+          id="radius-shape-2"
+          class="position-absolute shadow-5-strong"
+        ></div>
+
+        <div class="card login-card bg-glass">
+          <img
+            class="mt-5"
+            src="/assets/Screenshot3062-31-Desktop-3.png"
+            alt=""
+            srcset=""
+          />
+          <p class="text-end me-3">The Fashion Expert</p>
+          {{#if errorLogin}}
+            <p id="errId" class="text-danger text-center fw-bold">{{errorLogin}}</p>
+          {{/if}}
+          <div class="card-body px-md-5">
+            <form method="post" action="/login">
+              <div class="row">
+                <!-- Email input -->
+                <div class="form-outline">
+                  <input
+                    type="email"
+                    id="form3Example3"
+                    name="email"
+                    class="form-control"
+                  />
+                  <label class="form-label" for="form3Example3">Email address</label>
+                </div>
+
+                <!-- Password input -->
+                <div class="form-outline">
+                  <input
+                    type="password"
+                    id="form3Example4"
+                    class="form-control"
+                    name="password"
+                  />
+                  <label class="form-label" for="form3Example4">Password</label>
+                </div>
+
+                <div class="form-outline text-center">
+                  <a class="forgot-password" href="/forgot-password">Forgot
+                    password?</a>
+                </div>
+
+                <!-- Submit button -->
+                <button
+                  type="submit"
+                  class="btn login-btn mt-5 text-center text-white"
+                >
+                  Login
+                </button>
+                <div class="form-outline text-center">
+                  <a class="new-user" href="/sign-up">New User?</a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Design Block -->

@@ -1,0 +1,83 @@
+<div class="ms-5">
+
+  <div class="d-flex justify-content-start gap-3">
+    <div class="mt-5 col-4 col-md-4">
+      <div
+        id="img-container"
+        style="background-color: rgb(230, 230, 230);"
+        class="row rounded-2"
+      >
+
+        <img
+          id="mainImage"
+          class="img-fluid"
+          src="/uploads/cropped/{{productDetails.images.[1]}}"
+          alt=""
+        />
+
+      </div>
+      <div class="row">
+        <div class="d-flex justify-content-start gap-2 mt-2">
+          {{#each productDetails.images}}
+            <div
+              id="changeSrc"
+              onclick="changeSrc('{{this}}')"
+              class="rounded-1"
+              style="background-color: grey;"
+            >
+              <img
+                class="img-fluid"
+                src="/uploads/cropped/{{this}}"
+                alt=""
+                srcset=""
+                id="changeImg"
+              />
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+    <div class="pt-5 col-7 col-md-6 ms-3">
+      <div class="">
+        <h5>Home / view product</h5>
+        <h2 class="mt-4">{{productDetails.name}}</h2>
+        <h3 class="mt-5">${{productDetails.offerPrice}}</h3>
+        <div class="d-flex">
+          <p>Available Size:</p>
+          {{#each productDetails.size}}
+            <p class="ms-2 border rounded-4">{{this}}</p>
+          {{/each}}
+        </div>
+        <button class="btn btn-success mt-1">Add to Cart</button>
+      </div>
+      <div class="mt-1 pt-2 row">
+        <h3 class="d-none d-md-block">Product Details</h3>
+        <p class="mt-5 d-none d-md-block">{{productDetails.description}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script
+  src="https://unpkg.com/js-image-zoom@0.4.1/js-image-zoom.js"
+  type="application/javascript"
+></script>
+
+<script>
+
+  function changeSrc(id) {
+  let mainImage = document.getElementById("mainImage")
+  mainImage.src = `/uploads/cropped/${id}`
+  mainImage.setAttribute('src',`/uploads/cropped/${id}`)
+  return id
+  }
+</script>
+
+<script>
+  const options = {
+    width: 300,
+    height: 300,
+    zoomWidth: 2100,
+    offset:{vartical: 0, horizontal: 10},
+    scale: 1.5,  }
+  new ImageZoom(document.getElementById("img-container"),options);
+</script>

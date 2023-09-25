@@ -1,0 +1,73 @@
+<div class="container">
+  <div>
+    <div>
+      <form action="/admin/user-management" method="get" class="d-flex justify-content-start">
+        <div class="text-start d-flex ms-3">
+<input type="search" class="form-control text-start ms-5 rounded-3"  placeholder="Search user..." aria-label="Search" aria-describedby="search-addon" name="search" style="font-size: 12px; padding: 0.25rem 0.5rem;">
+          <button style="border: none;background-color:transparent;" type="submit" class="fas fa-search"></button>
+        </div>
+      </form>
+    </div>
+    <table class="table table-responsive-sm align-middle mb-0 bg-white mt-1">
+      <thead class="bg-light ">
+        <tr style="font-size: 12px;" class="rounded-5">
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Joined</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each userDetails}}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="https://mdbootstrap.com/img/new/avatars/8.jpg" alt="" style="width: 20px; height: 20px" class="rounded-circle" />
+              <div class="ms-2">
+                <p class="fw-bold mb-0" style="font-size: 12px;">{{name}}</p>
+                <p class="text-muted mb-0" style="font-size: 10px;">{{email}}</p>
+              </div>
+            </div>
+          </td>
+          <td>
+            <p class="fw-normal mb-0" style="font-size: 12px;">{{phone}}</p>
+          </td>
+          <td style="font-size: 12px;">{{created}}</td>
+          <td>
+            {{#unless blockStatus}}
+            <span class="badge rounded-pill" style="font-size: 10px; background-color: lightgreen; color: rgb(37, 125, 90);">Active</span>
+            {{else}}
+             <span class="badge rounded-pill" style="font-size: 10px; background-color: rgb(238, 171, 144); color: rgb(200, 29, 29);">Blocked</span>
+              {{/unless}}
+              
+          </td>
+          <td>
+            {{#unless blockStatus}}
+            <a onclick="return confirm(`do you want to Block/Unblock  user {{name}}`)" href="/admin/block-user/{{_id}}" class="btn btn-link btn-sm btn-rounded" style="font-size: 12px;"><img src="/assets/mdi_unlocked-outline.png" alt="" srcset="" style="width:20px"></a>
+            {{else}}
+            <a onclick="return confirm(`do you want to Block/Unblock  user {{name}}`)" href="/admin/block-user/{{_id}}" class="btn btn-link btn-sm btn-rounded" style="font-size: 12px;"><img src="/assets/lock.png" alt="" srcset="" style="width:20px"></a>
+            {{/unless}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/admin/user-management?page={{prevPage}}&search={{search}}" class="page-link">Previous</a>
+    </li>
+    <li class="page-item">
+    {{#each pages}}
+      <a class="page-link" href="/admin/user-management?page={{this}}&search={{search}}">{{this}}</a>
+    {{/each}}
+    </li>
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/admin/user-management?page={{nextPage}}&search={{search}}">Next</a>
+    </li>
+  </ul>
+</nav>
+
+  </div>
+</div>

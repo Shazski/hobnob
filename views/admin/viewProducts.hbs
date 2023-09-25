@@ -1,0 +1,71 @@
+<div class="container">
+  <div>
+    <div>
+      <form action="/admin/view-products" method="get" class="d-flex justify-content-start">
+        <div class="text-start d-flex ms-3">
+<input type="search" class="form-control text-start ms-5 rounded-3"  placeholder="Search user..." aria-label="Search" aria-describedby="search-addon" name="search" style="font-size: 12px; padding: 0.25rem 0.5rem;">
+          <button style="border: none;background-color:transparent;" type="submit" class="fas fa-search"></button>
+        </div>
+      </form>
+    </div>
+    <table class="table table-responsive-sm align-middle mb-0 bg-white mt-1">
+      <thead class="bg-light ">
+        <tr style="font-size: 12px;" class="rounded-5">
+          <th>Image</th>
+          <th>Name</th>
+          <th>CREATED</th>
+          <th>UPDATED</th>
+          <th>PRICE</th>
+          <th>Stock</th>
+          <th>STATUS</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each productDetails}}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="/uploads/cropped/{{images.[0]}}" alt="" style="width: 20px; height: 20px" class="rounded-circle" />
+            </div>
+          </td>
+          <td>
+            <p class="fw-normal mb-0" style="font-size: 12px;">{{name}}</p>
+          </td>
+          <td style="font-size: 12px;">{{created}}</td>
+          <td style="font-size: 12px;">{{updated}}</td>
+          <td style="font-size: 12px;">{{offerPrice}}</td>
+          <td style="font-size: 12px;">{{stock}}</td>
+          <td>
+            {{#unless status}}
+            <span class="badge rounded-pill" style="font-size: 10px; background-color: rgb(238, 144, 144); color: rgb(125, 37, 37);">Stock Out</span>
+             {{else}}
+            <span class="badge rounded-pill" style="font-size: 10px; background-color: lightgreen; color: rgb(37, 125, 90);">In Stock</span>
+            {{/unless}}
+          </td>
+          <td>
+            <a  href="/admin/edit-product/{{_id}}" class="btn btn-link btn-sm btn-rounded" style="font-size: 12px;"><img src="/assets/edit.png" alt="" srcset="" style="width:20px"></a>
+            <a onclick="return confirm(`do you want to softdelete {{name}}`)" href="/admin/delete-product/{{_id}}" class="btn btn-link btn-sm btn-rounded" style="font-size: 12px;"><img src="/assets/trash.png" alt="" srcset="" style="width:20px"></a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/admin/view-product?page={{prevPage}}&search={{search}}" class="page-link">Previous</a>
+    </li>
+    <li class="page-item">
+    {{#each pages}}
+      <a class="page-link" href="/admin/view-products?page={{this}}&search={{search}}">{{this}}</a>
+    {{/each}}
+    </li>
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/admin/view-products?page={{nextPage}}&search={{search}}">Next</a>
+    </li>
+  </ul>
+</nav>
+
+  </div>
+</div>

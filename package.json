@@ -1,0 +1,34 @@
+{
+  "name": "hobnob-ecommerce",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "script": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-handlebars": "^7.1.2",
+    "express-session": "^1.17.3",
+    "js-image-zoom": "^0.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nocache": "^4.0.0",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^6.9.5",
+    "otp-generator": "^4.0.1",
+    "sharp": "^0.32.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
