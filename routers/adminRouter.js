@@ -16,12 +16,12 @@ router.route('/block-user/:id').all(adminAuth.adminAuth).get(adminController.get
 
 router.route('/category-management').all(adminAuth.adminAuth).get(categoryController.getCategory).post(categoryController.postCategory)
 
-router.route('/add-product').get(productController.getAddProduct).post(upload.array("images",4),productController.postAddProduct)
+router.route('/add-product').all(adminAuth.adminAuth).get(productController.getAddProduct).post(upload.array("images",4),productController.postAddProduct)
 
-router.route('/view-products').get(productController.getAllProducts)
+router.route('/view-products').all(adminAuth.adminAuth).get(productController.getAllProducts)
 
-router.route('/edit-product/:id').get(productController.editProduct).post(upload.array("images",4),productController.updateProduct) 
+router.route('/edit-product/:id').all(adminAuth.adminAuth).get(productController.editProduct).post(upload.array("images",4),productController.updateProduct) 
 
-router.route('/delete-product/:id').get(productController.deleteProduct)
+router.route('/delete-product/:id').all(adminAuth.adminAuth).get(productController.deleteProduct)
 
 module.exports = router

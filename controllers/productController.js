@@ -151,7 +151,15 @@ module.exports = {
     }
   },
 
-  deleteProduct: (req, res) => {
-    res.redirect('/')
+  deleteProduct: async(req, res) => {
+    const proId = req.params.id
+    try { 
+     let product = await productSchema.findById(proId)
+     proStatus = !product.status
+     await productSchema.findByIdAndUpdate(proId,{status:proStatus})
+     res.redirect('/admin/view-products')
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
