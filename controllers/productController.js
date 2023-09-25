@@ -146,7 +146,9 @@ module.exports = {
 
       console.log(updateProduct, "updated");
       res.redirect("/admin/view-products");
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   },
 
   deleteProduct: (req, res) => {
