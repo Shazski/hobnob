@@ -22,6 +22,6 @@ router.route('/view-products').get(productController.getAllProducts)
 
 router.route('/edit-product/:id').get(productController.editProduct).post(upload.array("images",4),productController.updateProduct) 
 
-// router.route('/delete-product/:id').get(productController.deleteProduct)
+router.route('/delete-product/:id').get(productController.deleteProduct)
 
 module.exports = router

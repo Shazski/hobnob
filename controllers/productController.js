@@ -148,4 +148,8 @@ module.exports = {
       res.redirect("/admin/view-products");
     } catch (error) {}
   },
+
+  deleteProduct: (req, res) => {
+    res.redirect('/')
+  }
 };
