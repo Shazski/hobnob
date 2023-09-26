@@ -25,7 +25,7 @@
         <form action="/admin/category-management" method="post">
             <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Enter Category</label>
-    <input placeholder="Enter Category Name..." type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <input required placeholder="Enter Category Name..." type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
   </div>
       </div>
       <div class="modal-footer">
@@ -64,8 +64,8 @@
           <td style="font-size: 12px;">{{created}}</td>
  
           <td>
-            <a href="/admin/edit-category/{{_id}}" class="" ><img width="10px" src="/assets/pen.png" alt="" srcset="" style="width:20px"></a>
-            <a href="/admin/delete-category{{_id}}" class="" ><img width="10px" src="/assets/trash.png" alt="" srcset="" style="width:20px"></a>
+            <a  href="/admin/edit-category/{{_id}}" class="" ><img width="10px" src="/assets/pen.png" alt="" srcset="" style="width:20px"></a>
+            <a onclick="return confirm('do you want to delete this category')" href="/admin/delete-category/{{_id}}" class="" ><img width="10px" src="/assets/trash.png" alt="" srcset="" style="width:20px"></a>
           </td>
         </tr>
         {{/each}}

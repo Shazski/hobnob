@@ -50,5 +50,36 @@ module.exports = {
                 res.redirect('/admin/category-management')
             }
         }
+    },
+
+    deleteCategory: async(req, res) => {
+      const catId = req.params.id
+      try {
+        await Category.findByIdAndDelete(catId)
+        res.redirect('/admin/category-management')
+      } catch (error) {
+        
+      }
+    },
+
+    editCategory: async(req, res) => {
+      const catId = req.params.id
+      try {
+        let categoryDetails = await Category.findById(catId).lean()
+        res.render('admin/editCategory',{categoryDetails})
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    postEditCategory: async(req, res) => {
+      const catId = req.params.id
+      const { category } = req.body
+      try {
+        await Category.findByIdAndUpdate(catId,{category:category})
+        res.redirect('/admin/category-management')
+      } catch (error) {
+        console.log(error)
+      }
     }
 }

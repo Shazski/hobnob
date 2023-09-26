@@ -38,7 +38,7 @@ module.exports = {
           file.destination,
           "cropped",
           file.filename
-        );
+        ); 
         await sharp(file.destination + file.filename)
           .resize(parseInt(600), parseInt(600))
           .toFile(outputPath);
