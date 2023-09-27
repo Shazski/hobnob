@@ -4,12 +4,28 @@ const productSchema = require("../models/productSchema");
 const path = require("path");
 const fs = require("fs");
 const generatePages = require("../service/pageGenerator");
+const { isValidObjectId } = require("mongoose");
 module.exports = {
   getViewProduct: async (req, res) => {
-    const id = req.params.id;
-    console.log(id);
-    let productDetails = await productSchema.findById(id).lean();
-    res.render("user/viewProduct", { productDetails: productDetails });
+    try {
+      const id = req.params.id;
+      if(!isValidObjectId(id)) {
+        res.render('error',{user: req.session.user})
+      } else {
+
+        const productDetails = await productSchema.findById(id).lean();
+        if (!productDetails) {
+          res.render("error", { user: req.session.user });
+        } else {
+          res.render("user/viewProduct", {
+            productDetails: productDetails,
+            user: req.session.user,
+          })
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
   },
 
   getAddProduct: async (req, res) => {
@@ -31,14 +47,13 @@ module.exports = {
       status,
       category,
     } = req.body;
-    console.log(req.body);
     try {
       for (const file of req.files) {
         const outputPath = path.resolve(
           file.destination,
           "cropped",
           file.filename
-        ); 
+        );
         await sharp(file.destination + file.filename)
           .resize(parseInt(600), parseInt(600))
           .toFile(outputPath);
@@ -91,7 +106,6 @@ module.exports = {
         .skip((page - 1) * 10)
         .limit(10)
         .lean();
-        console.log(productDetails,"details");
       res.render("admin/viewProducts", {
         productDetails,
         superAdmin: true,
@@ -121,11 +135,8 @@ module.exports = {
   updateProduct: async (req, res) => {
     let product = req.body;
     let proId = req.params.id;
-    console.log(product, "product");
     try {
-      console.log(req.files);
       if (req.files.length > 0) {
-        console.log("hello varindoooo");
         for (const file of req.files) {
           const outputPath = path.resolve(
             file.destination,
@@ -147,19 +158,19 @@ module.exports = {
       console.log(updateProduct, "updated");
       res.redirect("/admin/view-products");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   },
 
-  deleteProduct: async(req, res) => {
-    const proId = req.params.id
-    try { 
-     let product = await productSchema.findById(proId)
-     proStatus = !product.status
-     await productSchema.findByIdAndUpdate(proId,{status:proStatus})
-     res.redirect('/admin/view-products')
+  deleteProduct: async (req, res) => {
+    const proId = req.params.id;
+    try {
+      let product = await productSchema.findById(proId);
+      proStatus = !product.status;
+      await productSchema.findByIdAndUpdate(proId, { status: proStatus });
+      res.redirect("/admin/view-products");
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 };

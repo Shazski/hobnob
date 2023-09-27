@@ -110,4 +110,9 @@ module.exports = {
       console.log(error);
     }
   },
+
+  adminLogout: (req, res) => {
+    res.clearCookie("adminJwt");
+    res.redirect("/admin/login");
+  }
 };

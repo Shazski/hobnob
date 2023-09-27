@@ -9,7 +9,7 @@
         <form action="/admin/edit-category/{{categoryDetails._id}}" method="post">
             <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Enter Category</label>
-    <input value="{{categoryDetails.category}}" placeholder="Enter Category Name..." type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <input required value="{{categoryDetails.category}}" placeholder="Enter Category Name..." type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
   </div>
       </div>
       <div class="modal-footer">

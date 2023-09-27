@@ -193,7 +193,6 @@ module.exports = {
   },
 
   getUserLogout: (req, res) => {
-    req.session.destroy();
     res.clearCookie("userJwt");
     res.redirect("/login");
   },

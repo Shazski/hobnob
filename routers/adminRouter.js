@@ -66,4 +66,9 @@ router
   .get(categoryController.editCategory)
   .post(categoryController.postEditCategory);
 
+router 
+    .route('/logout')
+    .all(adminAuth.adminAuth)
+    .get(adminController.adminLogout)
+
 module.exports = router;

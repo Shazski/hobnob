@@ -65,45 +65,55 @@
   <div class="container">
     <div class="row d-flex justify-content-center gap-3">
       {{#each productDetails}}
-      <div class="card rounded-4 col-md-5" style="width: 13rem;height: 20.3rem;">
         <div
-          class="rounded-4 mt-2 position-relative"
-          style="background-color:#D9D9D9;"
+          class="card rounded-4 col-md-5"
+          style="width: 13rem;height: 20.3rem;"
         >
-          <a class="" href=""><i
-              class="fa fa-heart fa-lg position-absolute"
-              style="top: 10%;right:5%;color: rgb(111, 111, 111);"
-            ></i></a>
-          <a href="/view-product/{{_id}}"><img src="/uploads/cropped/{{this.images.[0]}}" class="card-img-top" alt="..." /></a>
-        </div>
-        <div class="card-body">
-          <h6 class="text-start">{{name}}</h6>
-          <h5 class="fs-6 text-start">{{brand}}</h5>
-          <div class="text-start">
-            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+          <div
+            class="rounded-4 mt-2 position-relative"
+            style="background-color:#D9D9D9;"
+          >
+            <a class="" href=""><i
+                class="fa fa-heart fa-lg position-absolute"
+                style="top: 10%;right:5%;color: rgb(111, 111, 111);"
+              ></i></a>
+            <a href="/view-product/{{_id}}"><img
+                src="/uploads/cropped/{{this.images.[0]}}"
+                class="card-img-top"
+                alt="..."
+              /></a>
           </div>
-          <div class="d-flex mt-2">
-            <p
-              style="color: #088173;font-size: 5px;!important"
-              class="text-decoration-line-through fw-light fs-6"
-            >${{basePrice}}</p>
-            <h6 style="color: #088173;padding-top: 0.1rem;" class="fw-medium fs-6 ms-1">${{offerPrice}}</h6>
-            <a
-              style="margin-top: -0.5rem;"
-              class="ps-4 mb-5 pb-5 ms-3"
-              href="#"
-            ><span><img
-                  style="width: 2rem;"
-                  src="/assets/Component 4.png"
-                  alt=""
-                /></span></a>
+          <div class="card-body">
+            <h6 class="text-start">{{name}}</h6>
+            <h5 class="fs-6 text-start">{{brand}}</h5>
+            <div class="text-start">
+              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+            </div>
+            <div class="d-flex mt-2">
+              <p
+                style="color: #088173;font-size: 5px;!important"
+                class="text-decoration-line-through fw-light fs-6"
+              >${{basePrice}}</p>
+              <h6
+                style="color: #088173;padding-top: 0.1rem;"
+                class="fw-medium fs-6 ms-1"
+              >${{offerPrice}}</h6>
+              <a
+                style="margin-top: -0.5rem;"
+                class="ps-4 mb-5 pb-5 ms-3"
+                onclick="addToCart('{{_id}}')"
+              ><span><img
+                    style="width: 2rem;"
+                    src="/assets/Component 4.png"
+                    alt=""
+                  /></span></a>
+            </div>
           </div>
         </div>
-      </div>
       {{/each}}
     </div>
   </div>
@@ -612,3 +622,16 @@
     </div>
   </div>
 </section>
+
+<script>
+
+function addToCart(proId) {
+  console.log("clicked")
+  $.ajax({
+    url:"/add-to-cart/" + proId,
+    method: "post"
+  }).done((data) => {
+    console.log("hello")
+  })
+}
+</script>

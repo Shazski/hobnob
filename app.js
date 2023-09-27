@@ -50,6 +50,7 @@ app.use(express.static("public"));
 //router middleware
 app.use("/admin", adminRouter);
 app.use("/", userRouter);
+app.use("*", (req, res) => res.render('error'))
 
 //server creating
 app.listen(PORT, () => {
