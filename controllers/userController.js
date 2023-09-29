@@ -6,6 +6,8 @@ const { sign } = require("jsonwebtoken");
 require("dotenv").config();
 const hashpassword = require("../service/hashPassword");
 const productSchema = require("../models/productSchema");
+const { isValidObjectId } = require("mongoose");
+const cartHelper = require('../helpers/getCartAmount')
 
 module.exports = {
   getUserLogin: (req, res) => {
@@ -68,7 +70,7 @@ module.exports = {
           email: email,
           phone: phone,
           password: password,
-          created: new Date().toLocaleDateString()
+          created: new Date().toLocaleDateString(),
         });
 
         if (userId) {
@@ -78,7 +80,7 @@ module.exports = {
             { expiresIn: "1h" }
           );
           res.cookie("userJwt", token, { maxAge: 3600000 });
-          req.session.user = userId
+          req.session.user = userId;
           res.redirect("/");
         } else {
           console.log("user signUp failed");
@@ -122,46 +124,52 @@ module.exports = {
   },
 
   getChangePassword: (req, res) => {
-    if (req.session.forgotOtp) {
-      res.render("user/changePassword", {
-        userEmail: req.session.userEmail,
-        matchError: req.session.matchError,
-      });
-    } else {
-      req.session.error = "enter email and otp for change password";
-      res.redirect("/forgot-password");
+    try {
+      if (req.session.forgotOtp) {
+        res.render("user/changePassword", {
+          userEmail: req.session.userEmail,
+          matchError: req.session.matchError,
+        });
+      } else {
+        req.session.error = "enter email and otp for change password";
+        res.redirect("/forgot-password");
+      }
+    } catch (error) {
+      console.log(error)
     }
   },
 
   postChangePassword: async (req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
+    try {
+      if (newPassword !== confirmPassword) {
+        req.session.matchError = "password is not matching";
+        res.redirect("/change-password");
+      } else {
+        const hashedPassword = hashpassword.hashPassword(newPassword);
+        await User.findOneAndUpdate(
+          { email: email },
+          { password: hashedPassword }
+        );
 
-    if (newPassword !== confirmPassword) {
-      req.session.matchError = "password is not matching";
-      res.redirect("/change-password");
-    } else {
-      const hashedPassword = hashpassword.hashPassword(newPassword);
-      await User.findOneAndUpdate(
-        { email: email },
-        { password: hashedPassword }
-      );
-
-      req.session.matchError = "";
-      res.redirect("/login");
+        req.session.matchError = "";
+        res.redirect("/login");
+      }
+    } catch (error) {
+      console.log(error);
     }
   },
 
   postUserLOgin: async (req, res) => {
-    const { email, password } = req.body;
-    let existingUser = await User.findOne({ email: email });
-
     try {
+      const { email, password } = req.body;
+      let existingUser = await User.findOne({ email: email });
       if (existingUser) {
         let userPassword = hashpassword.matchPassword(
           password,
           existingUser.password
         );
-  
+
         if (userPassword) {
           if (existingUser.blockStatus === false) {
             let token = sign(
@@ -171,6 +179,7 @@ module.exports = {
             );
             res.cookie("userJwt", token, { maxAge: 3600000 });
             req.session.user = existingUser;
+            req.session.errorLogin = "";
             res.redirect("/");
           } else {
             req.session.errorLogin = "You have been blocked By Admin";
@@ -181,19 +190,119 @@ module.exports = {
           req.session.errorLogin = "Email or password is invalid";
           res.redirect("/login");
         }
+      } else {
+        req.session.errorLogin = "invalid user name or password";
+        res.redirect("/login");
       }
     } catch (error) {
       console.log(error);
     }
   },
 
-  getHomePage: async(req, res) => {
-   let productDetails = await productSchema.find({stock:{$gt:0},status:true}).lean()
-    res.render("user/home", { user: req.session.user,productDetails});
+  getHomePage: async (req, res) => {
+    let productDetails = await productSchema
+      .find({ stock: { $gt: 0 }, status: true })
+      .lean();
+    res.render("user/home", { user: req.session.user, productDetails });
   },
 
   getUserLogout: (req, res) => {
     res.clearCookie("userJwt");
     res.redirect("/login");
+  },
+
+  getProfile: async (req, res) => {
+    let userId = req.session.user._id;
+    let user = await User.findById(userId).lean();
+    if (user) {
+      res.render("user/profile", { user: user });
+    } else {
+      res.render("user/profile", { user: req.session.user._id });
+    }
+  },
+
+  postProfile: async (req, res) => {
+    console.log(req.body);
+    let userData = req.body;
+    let userId = req.session.user._id;
+    try {
+      await User.findByIdAndUpdate(userId, { ...userData });
+      res.redirect("/profile");
+    } catch (error) {}
+  },
+
+  getAddress: (req, res) => {
+    res.render("user/address", { user: req.session.user });
+  },
+
+  postAddress: async (req, res) => {
+    let userId = req.session.user._id;
+    const { address, city, country, pincode } = req.body;
+    try {
+      let addressDetails = await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            addresses: [
+              {
+                address: address,
+                city: city,
+                country: country,
+                pincode: pincode,
+              },
+            ],
+          },
+        }
+      );
+      res.redirect("/profile");
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  getCheckout: async(req, res) => {
+    try {
+      const userId = req.session.user._id
+      const user = await User.findById(userId).lean()
+      const total = await cartHelper.getTotalAmount(userId);
+      res.render("user/checkout", { user: user , total});
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  getAllAddress: async (req, res) => {
+    try {
+      let userId = req.session.user._id;
+      let addressDetails = await User.findById(userId).lean();
+      res.render("user/allAddress", { user: addressDetails });
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  removeAddress: async (req, res) => {
+    let addressId = req.params.id;
+    let userId = req.session.user._id;
+    try {
+      if (!isValidObjectId(addressId)) {
+        res.render("error", { user: req.session.user });
+      } else {
+        let addRemoved = await User.findByIdAndUpdate(userId, {
+          $pull: {
+            addresses: {
+              _id: addressId,
+            },
+          },
+        });
+        if (addRemoved) {
+          res.redirect("/profile");
+        } else {
+          res.redirect("/error");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   },
 };

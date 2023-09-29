@@ -1,0 +1,52 @@
+ <link rel="stylesheet" href="/css/datatable.css">
+ <div class="main-panel container">
+        <div class="content-wrapper">
+          <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+              <a class="card-title">Pending</a>
+              <a class="card-title ms-5">Confirmed</a>
+              <a class="card-title ms-5">Shipped</a>
+              <a class="card-title ms-5">Delivered</a>
+                </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="table-responsive">
+                    <table id="order-listing" class="table">
+                      <thead>
+                        <tr>
+                            <th>Purchased On</th>
+                            <th>Customer</th>
+                            <th>Payment</th>
+                            <th>Total Price</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Product</th>
+                            <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{#each orderDetails}}
+                        <tr>
+                            <td>{{this.orderDate}}</td>
+                            <td>{{this.customerId}}</td>
+                            <td>{{this.paymentMode}}</td>
+                            <td>{{this.totalAmount}}</td>
+                            <td><button class="btn btn-outline-primary">View</button></td>
+                            <td>
+                              <label class="badge badge-info">{{status}}</label>
+                            </td>
+                            <td><button class="btn btn-outline-primary">View</button></td>
+                            <td>
+                              <button class="btn btn-outline-primary">View</button>
+                            </td>
+                        </tr>
+                        {{/each}}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>

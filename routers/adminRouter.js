@@ -71,4 +71,6 @@ router
     .all(adminAuth.adminAuth)
     .get(adminController.adminLogout)
 
+    router.route('/order-management').get(adminController.getAllOrders)
+
 module.exports = router;

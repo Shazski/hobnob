@@ -6,12 +6,12 @@ const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: Number, required: true },
-  address: [
+  addresses: [
     {
-      Address: { type: String },
-      City: { type: String },
-      Country: { type: String },
-      Pincode: { type: String },
+      address: { type: String },
+      city: { type: String },
+      country: { type: String },
+      pincode: { type: String },
     },
   ],
   created: { type: String },

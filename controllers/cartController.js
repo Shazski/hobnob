@@ -2,6 +2,7 @@ const Cart = require("../models/cartSchema");
 const cartController = require("./cartController");
 const mongoose = require("mongoose");
 const productSchema = require("../models/productSchema");
+const cartHelper = require("../helpers/getCartAmount");
 module.exports = {
   getCartTotalAmount: async (req, res) => {
     if (total.length > 0) {
@@ -13,53 +14,7 @@ module.exports = {
 
   getCartProducts: async (req, res) => {
     const userId = req.session.user._id;
-    let total = await Cart.aggregate([
-      {
-        $match: {
-          user: new mongoose.Types.ObjectId(userId),
-        },
-      },
-      {
-        $unwind: "$products",
-      },
-
-      {
-        $project: {
-          item: "$products.item",
-          quantity: "$products.quantity",
-        },
-      },
-
-      {
-        $lookup: {
-          from: "products",
-          localField: "item",
-          foreignField: "_id",
-          as: "product",
-        },
-      },
-      {
-        $project: {
-          item: 1,
-          quantity: 1,
-          product: { $arrayElemAt: ["$product", 0] },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: {
-            $sum: {
-              $multiply: [
-                { $toInt: "$product.offerPrice" },
-                { $toInt: "$quantity" },
-              ],
-            },
-          },
-        },
-      },
-    ]);
-    console.log(total, "total");
+    let total = await cartHelper.getTotalAmount(userId);
     let products = await Cart.aggregate([
       {
         $match: {
@@ -94,8 +49,7 @@ module.exports = {
         },
       },
     ]);
-    console.log(products);
-    res.render("user/cart", { user: req.session.user, products ,total});
+    res.render("user/cart", { user: req.session.user, products, total });
   },
 
   addToCart: async (req, res) => {
@@ -125,10 +79,8 @@ module.exports = {
             $push: { products: [{ item: proId, quantity: 1 }] },
           }
         );
-        console.log(pushedData, "data pushed");
       }
     } else {
-      console.log("its working");
       let userCart = {
         user: userId,
         products: [proObj],
@@ -141,70 +93,46 @@ module.exports = {
     }
   },
 
-  changeQuantity: async(req, res) => {
-    let {user, cartId, proId, count, quantity} = req.body
-    count = parseInt(count)
-    quantity = parseInt(quantity)
-    if(count === -1 && quantity === 1 ) {
-       await Cart.updateOne({user:user,_id:cartId},{
-            $pull:{products:{item:proId}}
-        })
-        res.send({removeProduct:true})
+  changeQuantity: async (req, res) => {
+    let { user, cartId, proId, count, quantity } = req.body;
+    count = parseInt(count);
+    quantity = parseInt(quantity);
+    if (count === -1 && quantity === 1) {
+      await Cart.updateOne(
+        { user: user, _id: cartId },
+        {
+          $pull: { products: { item: proId } },
+        }
+      );
+      res.json({ removeProduct: true });
     } else {
-     await Cart.updateOne({user:user,_id:cartId, 'products.item':proId},{
-            $inc:{'products.$.quantity':count}
-        })
-
-        let total = await Cart.aggregate([
-            {
-              $match: {
-                user: new mongoose.Types.ObjectId(user),
-              },
-            },
-            {
-              $unwind: "$products",
-            },
-      
-            {
-              $project: {
-                item: "$products.item",
-                quantity: "$products.quantity",
-              },
-            },
-      
-            {
-              $lookup: {
-                from: "products",
-                localField: "item",
-                foreignField: "_id",
-                as: "product",
-              },
-            },
-            {
-              $project: {
-                item: 1,
-                quantity: 1,
-                product: { $arrayElemAt: ["$product", 0] },
-              },
-            },
-            {
-              $group: {
-                _id: null,
-                total: {
-                  $sum: {
-                    $multiply: [
-                      { $toInt: "$product.offerPrice" },
-                      { $toInt: "$quantity" },
-                    ],
-                  },
-                },
-              },
-            },
-          ]);
-
-          res.json(total)
-
+      await Cart.updateOne(
+        { user: user, _id: cartId, "products.item": proId },
+        { 
+          $inc: { "products.$.quantity": count },
+        }
+      );
+      let total = await cartHelper.getTotalAmount(user);
+      res.json(total);
     }
-    console.log("hello clicked");
-  }
+  },
+
+  changeSize: async (req, res) => {
+    let { size, proId } = req.body;
+    console.log(proId, "product Id");
+    const userId = req.session.user._id;
+    try {
+      await Cart.findOneAndUpdate(
+        { user: userId, "products.item": proId },
+        { $set: { "products.$.size": size } }
+      );
+      let userCart = await Cart.findOne(
+        { user: userId, "products.item": proId },
+        { _id: 0, products: { $elemMatch: { item: proId } } }
+      );
+      res.send(userCart.size);
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };

@@ -4,6 +4,7 @@ const { sign } = require("jsonwebtoken");
 require("dotenv").config();
 const User = require("../models/userSchema");
 const generatePages = require("../service/pageGenerator");
+const Order = require('../models/orderSchema')
 
 module.exports = {
   getAdminLogin: (req, res) => {
@@ -114,5 +115,15 @@ module.exports = {
   adminLogout: (req, res) => {
     res.clearCookie("adminJwt");
     res.redirect("/admin/login");
-  }
+  },
+
+  getAllOrders: async(req, res) => {
+    try {
+      let orderDetails = await Order.find().lean()
+      console.log(orderDetails);
+      res.render("admin/viewOrder", { superAdmin: true, subAdmin: true,orderDetails });
+    } catch (error) {
+      console.log(error)
+    }
+  },
 };
