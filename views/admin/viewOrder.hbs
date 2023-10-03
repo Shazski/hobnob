@@ -4,10 +4,12 @@
           <div class="card">
             <div class="card-body">
                 <div class="d-flex">
-              <a class="card-title">Pending</a>
-              <a class="card-title ms-5">Confirmed</a>
-              <a class="card-title ms-5">Shipped</a>
-              <a class="card-title ms-5">Delivered</a>
+              <a href="/admin/order-management?status=pending" class="card-title">Pending</a>
+              <a href="/admin/order-management?status=confirmed" class="card-title ms-5">Confirmed</a>
+              <a href="/admin/order-management?status=shipped" class="card-title ms-5">Shipped</a>
+              <a href="/admin/order-management?status=delivered" class="card-title ms-5">Delivered</a>
+              <a href="/admin/order-management?status=returned" class="card-title ms-5">Returned</a>
+              <a href="/admin/order-management?status=canceled" class="card-title ms-5">Canceled</a>
                 </div>
               <div class="row">
                 <div class="col-12">
@@ -16,10 +18,9 @@
                       <thead>
                         <tr>
                             <th>Purchased On</th>
-                            <th>Customer</th>
+                            <th>Payment Status</th>
                             <th>Payment</th>
                             <th>Total Price</th>
-                            <th>Address</th>
                             <th>Status</th>
                             <th>Product</th>
                             <th>Actions</th>
@@ -29,24 +30,82 @@
                         {{#each orderDetails}}
                         <tr>
                             <td>{{this.orderDate}}</td>
-                            <td>{{this.customerId}}</td>
+                            <td>{{this.paymentStatus}}</td>
                             <td>{{this.paymentMode}}</td>
                             <td>{{this.totalAmount}}</td>
-                            <td><button class="btn btn-outline-primary">View</button></td>
                             <td>
-                              <label class="badge badge-info">{{status}}</label>
+                              {{status}}
                             </td>
-                            <td><button class="btn btn-outline-primary">View</button></td>
                             <td>
-                              <button class="btn btn-outline-primary">View</button>
+                              <a href="/admin/orderDetails/{{this._id}}" class="btn btn-outline-primary">View</a>
                             </td>
+                            <td>
+                            {{#if ../pending}}
+                              <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
+                                <option selected hidden  value="">{{status}}</option>
+                                <option value="confirmed">Confirmed</option>
+                              </select>
+                              {{else if ../confirmed}}
+                              <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
+                                <option selected hidden  value="">{{status}}</option>
+                                <option value="shipped">shipped</option>
+                              </select>
+                              {{else if ../shipped}}
+                              <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
+                                <option selected hidden  value="">{{status}}</option>
+                                <option value="delivered">delivered</option>
+                              </select>
+                              {{else if ../delivered}}
+                              <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
+                                <option selected hidden  value="">{{status}}</option>
+                              </select>
+                              {{else if ../returned}}
+                              <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
+                                <option selected hidden  value="">{{status}}</option>
+                                <option value="cancel">cancel</option>
+                                <option value="accepted">accepted</option>
+                              </select>
+                              {{/if}}
+                              </td>
                         </tr>
                         {{/each}}
                       </tbody>
                     </table>
+                    
                   </div>
+                  
                 </div>
+                
               </div>
             </div>
           </div>
+          <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/admin/order-management?page={{prevPage}}&status={{status}}" class="page-link">Previous</a>
+    </li>
+    {{#each pages}}
+    <li class="page-item">
+      <a class="page-link" href="/admin/order-management?page={{this}}&status={{../status}}">{{this}}</a>
+    </li>
+    {{/each}}
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/admin/order-management?page={{nextPage}}&status={{status}}">Next</a>
+    </li>
+  </ul>
+</nav>
         </div>
+
+        <script>
+          function changeStatus(orderId) {
+            let value = $('#status').val()
+              $.ajax({
+              url:'/admin/change-order-status/'+ orderId,
+              method:'post',
+              data: {status:value}
+            }).done((data) => {
+              console.log("hello are you there")
+              window.location.reload()
+            }) 
+          }
+        </script>

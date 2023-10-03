@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
 const categoryController = require("../controllers/categoryController");
+const orderController = require("../controllers/orderContoller");
 const adminAuth = require("../middleware/adminAuth");
 const productController = require("../controllers/productController");
 const upload = require("../middleware/upload");
@@ -66,11 +67,24 @@ router
   .get(categoryController.editCategory)
   .post(categoryController.postEditCategory);
 
-router 
-    .route('/logout')
-    .all(adminAuth.adminAuth)
-    .get(adminController.adminLogout)
+router
+  .route("/logout")
+  .all(adminAuth.adminAuth)
+  .get(adminController.adminLogout);
 
-    router.route('/order-management').get(adminController.getAllOrders)
+router
+  .route("/order-management")
+  .all(adminAuth.adminAuth)
+  .get(orderController.getAllOrders);
+
+router
+  .route("/orderDetails/:id")
+  .all(adminAuth.adminAuth)
+  .get(orderController.getOrderDetails);
+
+router
+  .route("/change-order-status/:id")
+  .all(adminAuth.adminAuth)
+  .post(orderController.changeOrderStatus);
 
 module.exports = router;

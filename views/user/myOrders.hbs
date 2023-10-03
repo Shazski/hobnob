@@ -1,0 +1,78 @@
+ <link rel="stylesheet" href="/css/datatable.css">
+ <div class="main-panel mt-5 pt-5 container">
+        <div class="content-wrapper">
+          <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+              <a href="/my-orders/{{user}}?status=current" class="card-title">Current Orders</a>
+              <a href="/my-orders/{{user}}?status=history" class="card-title ms-5">Order History</a>
+                </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="table-responsive">
+                    <table id="order-listing" class="table">
+                      <thead>
+                        <tr>
+                            <th>Purchased On</th>
+                            <th>Payment Status</th>
+                            <th>Payment</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Product</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{#each orderDetails}}
+                        <tr>
+                            <td>{{this.orderDate}}</td>
+                            <td>{{this.paymentStatus}}</td>
+                            <td>{{this.paymentMode}}</td>
+                            <td>{{this.totalAmount}}</td>
+                            <td>
+                              {{status}}
+                            </td>
+                            <td>
+                              <a href="/my-order-details/{{this._id}}" class="btn btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {{/each}}
+                      </tbody>
+                    </table>
+                    
+                  </div>
+                  
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/my-orders/{{user}}?page={{prevPage}}&status={{status}}" class="page-link">Previous</a>
+    </li>
+    {{#each pages}}
+    <li class="page-item">
+      <a class="page-link" href="/my-orders/{{../user}}?page={{this}}&status={{../status}}">{{this}}</a>
+    </li>
+    {{/each}}
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/my-orders/{{user}}?page={{nextPage}}&status={{status}}">Next</a>
+    </li>
+  </ul>
+</nav>
+        </div>
+
+        <script>
+          function changeStatus(orderId) {
+            let value = $('#status').val()
+              $.ajax({
+              url:'/admin/change-order-status/'+ orderId,
+              method:'post',
+              data: {status:value}
+            }).done((data) => {
+              console.log("hello are you there")
+              window.location.reload()
+            }) 
+          }
+        </script>

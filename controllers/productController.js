@@ -154,8 +154,12 @@ module.exports = {
       let updateProduct = await productSchema.findByIdAndUpdate(proId, {
         ...product,
       });
-
-      console.log(updateProduct, "updated");
+      let productStatus = await productSchema.findById(proId)
+      if(productStatus.status === false && productStatus.stock > 0) {
+        await productSchema.findByIdAndUpdate(proId,{
+          status: true
+        })
+      }
       res.redirect("/admin/view-products");
     } catch (error) {
       console.log(error);

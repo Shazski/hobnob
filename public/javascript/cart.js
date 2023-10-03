@@ -13,14 +13,14 @@ function changeQuantity(cartId,proId,userId,count) {
     },
     method:'post',
     success:(response)=>{
-        console.log(response,"sdasdsa")
-        console.log(response);
         if(response.removeProduct){
             alert("product is remmoved from the cart")
             location.reload()
+        } else if(response.status == false) {
+            document.getElementById('quantityError').innerText = "Out of stock"
         }else{
             document.getElementById(proId).innerText=quantity+count
-  
+            document.getElementById('quantityError').innerText = ""
             document.getElementById('total').innerText=response[0].total
             document.getElementById('totalAmount').innerText=response[0].total
         }

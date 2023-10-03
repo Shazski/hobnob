@@ -26,7 +26,7 @@
                   <div class="card-profile-stats d-flex justify-content-center mt-md-5">
                     <div class="mt-5">
                       <span class="description">Total Orders</span>
-                      <span class="heading">22</span>
+                      <span class="heading">{{orderCount}}</span>
                     </div>
                   </div>
                 </div>
@@ -45,10 +45,10 @@
                   <i class="ni education_hat mr-2"></i>{{user.address.[0]}}
                 </div>
                 <div>
-                  <a  href="/profile/address" class="ni education_hat mr-2 btn btn-sm btn-light border-none">Edit Profile</a>
+                  <a  href="#profile" class="ni education_hat mr-2 btn btn-sm btn-light border-none">Edit Profile</a>
                 </div>
                 <div>
-                  <a  href="/profile/address" class="ni education_hat mr-2 btn btn-sm btn-light border-none">Change Password</a>
+                  <a  href="/profile/change-password" class="ni education_hat mr-2 btn btn-sm btn-light border-none">Change Password</a>
                 </div>
                 <div>
                   <a  href="/profile/address" class="ni education_hat mr-2 btn btn-sm btn-light border-none">+Add Address</a>
@@ -68,7 +68,7 @@
                 
               </div>
             </div>
-            <div class="card-body">
+            <div id="profile" class="card-body">
                 <h6 class="heading-small text-muted mb-4">User information</h6>
               <form action="/profile" method="post">
                 <div class="pl-lg-4">

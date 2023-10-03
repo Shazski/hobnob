@@ -117,13 +117,5 @@ module.exports = {
     res.redirect("/admin/login");
   },
 
-  getAllOrders: async(req, res) => {
-    try {
-      let orderDetails = await Order.find().lean()
-      console.log(orderDetails);
-      res.render("admin/viewOrder", { superAdmin: true, subAdmin: true,orderDetails });
-    } catch (error) {
-      console.log(error)
-    }
-  },
+  
 };

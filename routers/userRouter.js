@@ -4,7 +4,7 @@ const userController = require("../controllers/userController");
 const userAuth = require("../middleware/userAuth");
 const productContoller = require("../controllers/productController");
 const cartController = require("../controllers/cartController");
-const paymentController = require('../controllers/paymentContoller')
+const orderController = require("../controllers/orderContoller");
 router
   .route("/login")
   .all(userAuth.userValid)
@@ -31,7 +31,7 @@ router
 
 router
   .route("/")
-  .all(userAuth.userAuth,userAuth.checkStatus )
+  .all(userAuth.userAuth, userAuth.checkStatus)
   .get(userController.getHomePage);
 
 router
@@ -87,6 +87,43 @@ router
   .all(userAuth.userAuth, userAuth.checkStatus)
   .get(userController.removeAddress);
 
-router.route('/payment').all(userAuth.userAuth, userAuth.checkStatus).post(paymentController.postPayment) 
+router
+  .route("/payment")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(orderController.postOrder);
+
+router
+  .route("/success")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(orderController.getSuccess);
+
+router
+  .route("/profile/change-password")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(userController.changePassword);
+
+router
+  .route("/remove-product/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(cartController.removeProduct);
+
+router
+  .route("/edit-address/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(userController.editAddress)
+  .post(userController.postEditAddress);
+
+router
+  .route("/my-orders/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(orderController.getMyOrders);
+
+router
+  .route("/my-order-details/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(orderController.getMyOrderDetails);
+
+router.route('/cancel-reason/:id').all(userAuth.userAuth,userAuth.checkStatus).post(orderController.postCancelReason)
+
 
 module.exports = router;

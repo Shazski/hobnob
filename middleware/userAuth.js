@@ -33,7 +33,9 @@ const userValid = (req, res, next) => {
 };
 
 const checkStatus = async (req, res, next) => {
-  let userStatus = await User.findById(req.session.user._id);
+  if(req.session.user) {
+  const userId = req.session.user._id
+  let userStatus = await User.findById(userId);
   if (userStatus) {
     if (userStatus.blockStatus === false) {
       next();
@@ -47,6 +49,10 @@ const checkStatus = async (req, res, next) => {
     res.clearCookie("userJwt");
     res.redirect("/login");
   }
+}else {
+  res.clearCookie("userJwt")
+  res.redirect('/login')
+}
 };
 
 module.exports = { userAuth, userValid, checkStatus };

@@ -78,7 +78,7 @@
     </li>
     {{#each pages}}
     <li class="page-item">
-      <a class="page-link" href="/admin/category-management?page={{this}}&search={{search}}">{{this}}</a>
+      <a class="page-link" href="/admin/category-management?page={{this}}&search={{../search}}">{{this}}</a>
     </li>
     {{/each}}
     <li class="page-item {{#unless hasNext}}disabled{{/unless}}">

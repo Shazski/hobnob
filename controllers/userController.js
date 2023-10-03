@@ -2,13 +2,14 @@ const otpGenerator = require("../service/otpGenerator");
 const mail = require("../service/nodeMailer");
 const Otp = require("../models/otpSchema");
 const User = require("../models/userSchema");
+const Order = require("../models/orderSchema");
 const { sign } = require("jsonwebtoken");
 require("dotenv").config();
 const hashpassword = require("../service/hashPassword");
 const productSchema = require("../models/productSchema");
 const { isValidObjectId } = require("mongoose");
-const cartHelper = require('../helpers/getCartAmount')
-
+const cartHelper = require("../helpers/getCartAmount");
+const mongoose = require('mongoose');
 module.exports = {
   getUserLogin: (req, res) => {
     res.render("user/userLogin", { errorLogin: req.session.errorLogin });
@@ -125,7 +126,7 @@ module.exports = {
 
   getChangePassword: (req, res) => {
     try {
-      if (req.session.forgotOtp) {
+      if (req.session.forgotOtp || req.session.user) {
         res.render("user/changePassword", {
           userEmail: req.session.userEmail,
           matchError: req.session.matchError,
@@ -135,7 +136,7 @@ module.exports = {
         res.redirect("/forgot-password");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   },
 
@@ -144,14 +145,17 @@ module.exports = {
     try {
       if (newPassword !== confirmPassword) {
         req.session.matchError = "password is not matching";
-        res.redirect("/change-password");
+        if (req.session.user) {
+          res.redirect("/profile/change-password");
+        } else {
+          res.redirect("/change-password");
+        }
       } else {
         const hashedPassword = hashpassword.hashPassword(newPassword);
         await User.findOneAndUpdate(
           { email: email },
           { password: hashedPassword }
         );
-
         req.session.matchError = "";
         res.redirect("/login");
       }
@@ -213,11 +217,18 @@ module.exports = {
 
   getProfile: async (req, res) => {
     let userId = req.session.user._id;
-    let user = await User.findById(userId).lean();
-    if (user) {
-      res.render("user/profile", { user: user });
+    if (userId) {
+      let user = await User.findById(userId).lean();
+      let orderCount = await Order.find({customerId:userId}).count().lean()
+      console.log(orderCount,"count")
+      if (user) {
+        res.render("user/profile", { user: user,orderCount });
+      } else {
+        res.render("user/profile", { user: req.session.user._id, orderCount });
+      }
     } else {
-      res.render("user/profile", { user: req.session.user._id });
+      res.clearCookie("userJwt");
+      res.redirect("/login");
     }
   },
 
@@ -225,10 +236,17 @@ module.exports = {
     console.log(req.body);
     let userData = req.body;
     let userId = req.session.user._id;
-    try {
-      await User.findByIdAndUpdate(userId, { ...userData });
-      res.redirect("/profile");
-    } catch (error) {}
+    if (userId) {
+      try {
+        await User.findByIdAndUpdate(userId, { ...userData });
+        res.redirect("/profile");
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
+    }
   },
 
   getAddress: (req, res) => {
@@ -238,44 +256,59 @@ module.exports = {
   postAddress: async (req, res) => {
     let userId = req.session.user._id;
     const { address, city, country, pincode } = req.body;
-    try {
-      let addressDetails = await User.findOneAndUpdate(
-        { _id: userId },
-        {
-          $push: {
-            addresses: [
-              {
-                address: address,
-                city: city,
-                country: country,
-                pincode: pincode,
-              },
-            ],
-          },
-        }
-      );
-      res.redirect("/profile");
-    } catch (error) {
-      console.log(error);
+    if (userId) {
+      try {
+        let addressDetails = await User.findOneAndUpdate(
+          { _id: userId },
+          {
+            $push: {
+              addresses: [
+                {
+                  address: address,
+                  city: city,
+                  country: country,
+                  pincode: pincode,
+                },
+              ],
+            },
+          }
+        );
+        res.redirect("/profile");
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
     }
   },
 
-  getCheckout: async(req, res) => {
-    try {
-      const userId = req.session.user._id
-      const user = await User.findById(userId).lean()
-      const total = await cartHelper.getTotalAmount(userId);
-      res.render("user/checkout", { user: user , total});
-    } catch (error) {
-      console.log(error);
+  getCheckout: async (req, res) => {
+    const userId = req.session.user._id;
+    if (userId) {
+      try {
+        const user = await User.findById(userId).lean();
+        const total = await cartHelper.getTotalAmount(userId);
+        res.render("user/checkout", { user: user, total });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
     }
   },
 
   getAllAddress: async (req, res) => {
     try {
       let userId = req.session.user._id;
-      let addressDetails = await User.findById(userId).lean();
-      res.render("user/allAddress", { user: addressDetails });
+      if (userId) {
+        let addressDetails = await User.findById(userId).lean();
+        res.render("user/allAddress", { user: addressDetails });
+      } else {
+        res.clearCookie("userJwt");
+        res.redirect("/login");
+      }
     } catch (error) {
       console.log(error);
     }
@@ -284,25 +317,78 @@ module.exports = {
   removeAddress: async (req, res) => {
     let addressId = req.params.id;
     let userId = req.session.user._id;
-    try {
-      if (!isValidObjectId(addressId)) {
-        res.render("error", { user: req.session.user });
-      } else {
-        let addRemoved = await User.findByIdAndUpdate(userId, {
-          $pull: {
-            addresses: {
-              _id: addressId,
-            },
-          },
-        });
-        if (addRemoved) {
-          res.redirect("/profile");
+    if (userId) {
+      try {
+        if (!isValidObjectId(addressId)) {
+          res.render("error", { user: req.session.user });
         } else {
-          res.redirect("/error");
+          let addRemoved = await User.findByIdAndUpdate(userId, {
+            $pull: {
+              addresses: {
+                _id: addressId,
+              },
+            },
+          });
+          if (addRemoved) {
+            res.redirect("/profile");
+          } else {
+            res.redirect("/error");
+          }
         }
+      } catch (error) {
+        console.log(error);
       }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
+    }
+  },
+
+  changePassword: (req, res) => {
+    try {
+      res.render("user/changePassword", {
+        user: req.session.user,
+        userEmail: req.session.user.email,
+      });
     } catch (error) {
       console.log(error);
     }
   },
+
+  editAddress: async (req, res) => {
+    const addressId = req.params.id;
+    if (req.session.user) {
+      const userId = req.session.user._id;
+      try {
+        let userAddress = await User.findOne(
+          { _id: userId },
+          { _id: 0, addresses: { $elemMatch: { _id: addressId } } }
+        ).lean()
+        res.render('user/editAddress',{userAddress,user:req.session.user})
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
+    }
+  },
+
+  postEditAddress: async(req, res) => {
+    const addressId = req.params.id
+    if(req.session.user) {
+      const userId = req.session.user._id
+      try {
+       let add =  await User.findOneAndUpdate({_id:userId,'addresses._id': new mongoose.Types.ObjectId(addressId)},{
+        $set:{
+          'addresses.$' : {...req.body}
+        }
+       })
+       console.log(add,'0address')
+       res.redirect('/profile')
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
 };
