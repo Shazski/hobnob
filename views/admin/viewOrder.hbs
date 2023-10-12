@@ -4,12 +4,12 @@
           <div class="card">
             <div class="card-body">
                 <div class="d-flex">
-              <a href="/admin/order-management?status=pending" class="card-title">Pending</a>
-              <a href="/admin/order-management?status=confirmed" class="card-title ms-5">Confirmed</a>
-              <a href="/admin/order-management?status=shipped" class="card-title ms-5">Shipped</a>
-              <a href="/admin/order-management?status=delivered" class="card-title ms-5">Delivered</a>
-              <a href="/admin/order-management?status=returned" class="card-title ms-5">Returned</a>
-              <a href="/admin/order-management?status=canceled" class="card-title ms-5">Canceled</a>
+              <a href="/admin/order-management?status=pending&sort={{sortData}}" class="card-title text-decoration-none text-dark">Pending</a>
+              <a href="/admin/order-management?status=confirmed&sort={{sortData}}" class="card-title text-decoration-none text-dark ms-5">Confirmed</a>
+              <a href="/admin/order-management?status=shipped&sort={{sortData}}" class="card-title text-decoration-none text-dark ms-5">Shipped</a>
+              <a href="/admin/order-management?status=delivered&sort={{sortData}}" class="card-title text-decoration-none text-dark ms-5">Delivered</a>
+              <a href="/admin/order-management?status=returned&sort={{sortData}}" class="card-title text-decoration-none text-dark ms-5">Returned</a>
+              <a href="/admin/order-management?status=canceled&sort={{sortData}}" class="card-title text-decoration-none text-dark ms-5">Canceled</a>
                 </div>
               <div class="row">
                 <div class="col-12">
@@ -17,12 +17,18 @@
                     <table id="order-listing" class="table">
                       <thead>
                         <tr>
-                            <th>Purchased On</th>
-                            <th>Payment Status</th>
-                            <th>Payment</th>
-                            <th>Total Price</th>
-                            <th>Status</th>
+                            <th><a class="text-decoration-none text-dark" href="/admin/order-management?sort=orderDate&status={{status}}">Purchased On</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/admin/order-management?sort=paymentStatus&status={{status}}">Payment Status</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/admin/order-management?sort=paymentMode&status={{status}}">Payment Method</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/admin/order-management?sort=totalAmount&status={{status}}">Total Price</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/admin/order-management?sort=status&status={{status}}">Status</a></th>
                             <th>Product</th>
+                            {{#if canceled}}
+                            <th>Reason</th>
+                            {{/if}}
+                            {{#if returned}}
+                            <th>Reason</th>
+                            {{/if}}
                             <th>Actions</th>
                         </tr>
                       </thead>
@@ -39,20 +45,23 @@
                             <td>
                               <a href="/admin/orderDetails/{{this._id}}" class="btn btn-outline-primary">View</a>
                             </td>
+                            {{#if ../canceled}}
+                            <td>{{reason}}</th>
+                            {{/if}}
                             <td>
                             {{#if ../pending}}
                               <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
-                                <option selected hidden  value="">{{status}}</option>
+                                <option selected hidden  value="confirmed">{{status}}</option>
                                 <option value="confirmed">Confirmed</option>
                               </select>
                               {{else if ../confirmed}}
                               <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
-                                <option selected hidden  value="">{{status}}</option>
+                                <option selected hidden  value="shipped">{{status}}</option>
                                 <option value="shipped">shipped</option>
                               </select>
                               {{else if ../shipped}}
                               <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
-                                <option selected hidden  value="">{{status}}</option>
+                                <option selected hidden  value="delivered">{{status}}</option>
                                 <option value="delivered">delivered</option>
                               </select>
                               {{else if ../delivered}}
@@ -64,6 +73,10 @@
                                 <option selected hidden  value="">{{status}}</option>
                                 <option value="cancel">cancel</option>
                                 <option value="accepted">accepted</option>
+                              </select>
+                              {{else if ../canceled}}
+                              <select onchange="changeStatus('{{_id}}')" class="badge badge-info" name="status" id="status">
+                                <option selected hidden  value="">{{status}}</option>
                               </select>
                               {{/if}}
                               </td>
@@ -82,15 +95,15 @@
           <nav aria-label="Page navigation example">
   <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
     <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
-      <a href="/admin/order-management?page={{prevPage}}&status={{status}}" class="page-link">Previous</a>
+      <a href="/admin/order-management?page={{prevPage}}&status={{status}}&sort={{sortData}}" class="page-link">Previous</a>
     </li>
     {{#each pages}}
     <li class="page-item">
-      <a class="page-link" href="/admin/order-management?page={{this}}&status={{../status}}">{{this}}</a>
+      <a class="page-link" href="/admin/order-management?page={{this}}&status={{../status}}&sort={{../sortData}}">{{this}}</a>
     </li>
     {{/each}}
     <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
-      <a class="page-link" href="/admin/order-management?page={{nextPage}}&status={{status}}">Next</a>
+      <a class="page-link" href="/admin/order-management?page={{nextPage}}&status={{status}}&sort={{sortData}}">Next</a>
     </li>
   </ul>
 </nav>

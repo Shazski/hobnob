@@ -6,7 +6,8 @@ const orderController = require("../controllers/orderContoller");
 const adminAuth = require("../middleware/adminAuth");
 const productController = require("../controllers/productController");
 const upload = require("../middleware/upload");
-
+const couponController = require("../controllers/couponController");
+const bannerController = require("../controllers/bannerController");
 router
   .route("/login")
   .all(adminAuth.adminValid)
@@ -66,6 +67,11 @@ router
   .all(adminAuth.adminAuth)
   .get(categoryController.editCategory)
   .post(categoryController.postEditCategory);
+router
+  .route("/edit-coupon/:id")
+  .all(adminAuth.adminAuth)
+  .get(couponController.editCoupon)
+  .post(couponController.postEditCoupon);
 
 router
   .route("/logout")
@@ -86,5 +92,32 @@ router
   .route("/change-order-status/:id")
   .all(adminAuth.adminAuth)
   .post(orderController.changeOrderStatus);
+
+router
+  .route("/coupon-management")
+  .all(adminAuth.adminAuth)
+  .get(couponController.getCoupon)
+  .post(couponController.postCoupon);
+
+router
+  .route("/delete-coupon/:id")
+  .all(adminAuth.adminAuth)
+  .get(couponController.deleteCoupon);
+
+router
+  .route("/view-user-orders/:id")
+  .all(adminAuth.adminAuth)
+  .get(orderController.getUserOrders);
+
+router
+  .route("/banner")
+  .all(adminAuth.adminAuth)
+  .get(bannerController.getBanner)
+  .post(upload.single("image"), bannerController.postBannner);
+
+  router
+  .route("/delete-banner/:id")
+  .all(adminAuth.adminAuth)
+  .get(bannerController.deleteBanner);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const userAuth = require("../middleware/userAuth");
 const productContoller = require("../controllers/productController");
 const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderContoller");
+const couponController = require("../controllers/couponController");
 router
   .route("/login")
   .all(userAuth.userValid)
@@ -16,6 +17,11 @@ router
   .all(userAuth.userValid)
   .get(userController.getUserSignUp)
   .post(userController.PostUserSignUp);
+router
+  .route("/sign-up/:id")
+  .all(userAuth.userValid)
+  .get(userController.getRefferalUserSignUp)
+  .post(userController.PostRefferalUserSignUp);
 
 router.route("/get-otp").post(userController.generateOtp);
 
@@ -49,6 +55,10 @@ router
   .route("/add-to-cart/:id")
   .all(userAuth.userAuth, userAuth.checkStatus)
   .post(cartController.addToCart);
+router
+  .route("/add-to-wishlist/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(cartController.addToWishList);
 
 router
   .route("/change-product-quantity")
@@ -103,7 +113,7 @@ router
   .get(userController.changePassword);
 
 router
-  .route("/remove-product/:id")
+  .route("/remove-product/")
   .all(userAuth.userAuth, userAuth.checkStatus)
   .get(cartController.removeProduct);
 
@@ -123,7 +133,40 @@ router
   .all(userAuth.userAuth, userAuth.checkStatus)
   .get(orderController.getMyOrderDetails);
 
-router.route('/cancel-reason/:id').all(userAuth.userAuth,userAuth.checkStatus).post(orderController.postCancelReason)
+router
+  .route("/cancel-reason/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(orderController.postCancelReason);
+router
+  .route("/return-reason/:id")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(orderController.postReturnReason);
+
+router
+  .route("/verify-payment")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(orderController.verifyPayment);
+
+router
+  .route("/validate-coupon")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(couponController.validateCoupon);
+
+router
+  .route("/update-amount")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .post(cartController.updateTotalAmount);
+
+router
+  .route("/shop")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(productContoller.getAllShopProducts);
+
+router
+  .route("/wishlist")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(cartController.getWishProducts);
+
 
 
 module.exports = router;

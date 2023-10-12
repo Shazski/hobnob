@@ -24,7 +24,9 @@ const OrdersSchema = new Schema({
   },
   couponId: { type: Schema.Types.ObjectId },
   paymentStatus: { type: String },
-  reason: {type:String}
+  reason: {type:String},
+  updatedAt:{type:Date},
+  returnDate:{type:Date}
 });
 
 module.exports = mongoose.model("Orders", OrdersSchema);

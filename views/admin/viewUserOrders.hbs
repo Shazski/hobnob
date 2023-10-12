@@ -1,0 +1,62 @@
+ <link rel="stylesheet" href="/css/datatable.css">
+ <div class="main-panel  container">
+        <div class="content-wrapper">
+          <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="table-responsive">
+                    <table id="order-listing" class="table">
+                      <thead>
+                        <tr>
+                            <th>Purchased On</th>
+                            <th>Payment Status</th>
+                            <th>Payment</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Product</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{#each orderDetails}}
+                        <tr>
+                            <td>{{this.orderDate}}</td>
+                            <td>{{this.paymentStatus}}</td>
+                            <td>{{this.paymentMode}}</td>
+                            <td>{{this.totalAmount}}</td>
+                            <td>
+                              {{status}}
+                            </td>
+                            <td>
+                              <a href="/admin/orderDetails/{{this._id}}" class="btn btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {{/each}}
+                      </tbody>
+                    </table>
+                    
+                  </div>
+                  
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/admin/view-user-orders/{{users}}?page={{prevPage}}" class="page-link">Previous</a>
+    </li>
+    {{#each pages}}
+    <li class="page-item">
+      <a class="page-link" href="/admin/view-user-orders/{{../users}}?page={{this}}">{{this}}</a>
+    </li>
+    {{/each}}
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/admin/view-user-orders/{{users}}?page={{nextPage}}">Next</a>
+    </li>
+  </ul>
+</nav>
+        </div>

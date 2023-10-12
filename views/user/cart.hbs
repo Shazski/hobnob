@@ -53,16 +53,16 @@
               >
                 <div class="product" data-product-id="{{product._id}}">
   <select required class="size-select">
-    <option disabled selected hidden value="{{this.size}}">size</option>
+    <option disabled hidden selected value="{{this.size}}">{{this.size}}</option>
     {{#each product.size}}
       <option  value="{{this}}">{{this}}</option>
     {{/each}}
   </select>
 </div>
                 <div class="">
-                 <span> <button  onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user._id}}',-1)" style="width: 22px;border: none;" class="ms-3">-</button>
+                 <span> <button  onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user._id}}','{{this.size}}',-1)" style="width: 22px;border: none;" class="ms-3">-</button>
                 <span id="{{this.product._id}}">{{this.quantity}}</span>
-                <button style="width: 22px;border: none;" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user._id}}',1)" class="">+</button>
+                <button style="width: 22px;border: none;" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user._id}}','{{this.size}}',1)" class="">+</button>
               </span>
                 </div>
                 <div class="">
@@ -80,7 +80,7 @@
                     class="btn btn-light border px-2 icon-hover-primary"
                   ><i class="fas fa-heart fa-md px-1 text-secondary"></i></a>
                   <a onclick="return confirm('do you want to remove this product from cart')"
-                    href="/remove-product/{{product._id}}"
+                    href="/remove-product?proId={{product._id}}&size={{size}}"
                     class="btn btn-light border px-2 icon-hover-danger"
                   ><i class="fas fa-trash  fa-md px-1 text-danger"></i></a>
                 </div>
@@ -94,17 +94,19 @@
       <div class="col-lg-3">
         <div class="card mb-3 border shadow-0">
           <div class="card-body">
-            <form>
+            <form id="couponForm">
               <div class="form-group">
-                <label class="form-label">Have coupon?</label>
+                <span ></span>
+                <label id="couponError" class="form-label">Have coupon?</label>
                 <div class="input-group">
                   <input
                     type="text"
                     class="form-control form-control-sm border"
-                    name=""
+                    name="couponCode"
                     placeholder="Coupon code"
                   />
                   <button
+                    id="couponBtn"
                     style="background-color: #088173;color: white;"
                     class="btn btn-sm btn-light border"
                   >Apply</button>
@@ -118,10 +120,10 @@
             <div class="d-flex justify-content-between">
               <p class="mb-2">Total price:</p>
               <p>Rs.<p id="total" class="mb-2">{{total.[0].total}}</p></p>
-            </div>
+            </div>purc
             <div class="d-flex justify-content-between">
               <p class="mb-2">Discount:</p>
-              <p>Rs.<p class="mb-2 text-success">0</p></p>
+              <p>Rs.<p id="discount" class="mb-2 text-success">0</p></p>
             </div>
             <hr />
             <div class="d-flex justify-content-between">
@@ -199,8 +201,40 @@
   document.getElementById('makePaymentBtn').addEventListener('click', (e) => {
     const isSizesValid = validateSizes();
     if (isSizesValid) {
+      e.preventDefault()
+      $.ajax({
+        url:'/update-amount',
+        data:{
+          amount : $('#totalAmount').text()
+        },
+        method:'post'
+      }).done((res) => {
+        if(res.success) {
+        location.href = "/checkout"
+        }
+      })
     } else {
       e.preventDefault()
     }
   });
+
+$('#couponBtn').click((e) => {
+  console.log("validation worked")
+  e.preventDefault()
+  $.ajax({
+    url:'/validate-coupon',
+    data:$('#couponForm').serialize(),
+    method:'post'
+  }).done((res) => {
+    if(res.success) {
+    $("#totalAmount").text(res.amount)
+    $("#discount").text(res.discount)
+    } else {
+    $("#couponError").text(res).css('color',"red")
+    }
+    console.log(res)
+  }).fail((err) => {
+    console.log(err)
+  })
+})
 </script>

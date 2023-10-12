@@ -1,4 +1,5 @@
-function changeQuantity(cartId,proId,userId,count) {
+function changeQuantity(cartId,proId,userId,size,count) {
+  console.log(size)
     let quantity=parseInt(document.getElementById(proId).innerText)
   count=parseInt(count)
   $.ajax({
@@ -9,10 +10,11 @@ function changeQuantity(cartId,proId,userId,count) {
         proId:proId,
         count:count,
         quantity:quantity,
-        
+        size:size
     },
     method:'post',
     success:(response)=>{
+      console.log(response)
         if(response.removeProduct){
             alert("product is remmoved from the cart")
             location.reload()
@@ -26,4 +28,19 @@ function changeQuantity(cartId,proId,userId,count) {
         }
     }
   })
+  }
+
+  
+  function addToCart(proId) {
+    console.log("hello add to cart")
+   let size =  $('input[type=radio][name=size]:checked').val();
+    $.ajax({
+      url:"/add-to-cart/" + proId,
+      method: "post",
+      data:{
+        size:size
+      }
+    }).done((data) => {
+      console.log("hello")
+    })
   }

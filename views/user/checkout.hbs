@@ -9,7 +9,7 @@
 
         </div>
 
-            <form action="/payment" method="post">
+            <form id="paynow">
             <p class="text-uppercase fw-bold mb-3 text-font">Address</p>
 
             {{#each user.addresses}}
@@ -33,6 +33,12 @@
           </div>
         </div>
             {{/each}}
+      <div class="col-md-7">
+                <a href="/profile/address" class="btn btn-outline-dark float-end button-color "
+                  data-mdb-ripple-color="dark">
+                  + add address
+                </a>
+              </div>
       </div>
       <div class="col-md-4 mb-4 position-static">
         <div class="card mb-4">
@@ -60,19 +66,19 @@
                 <li
                   class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
                   Subtotal
-                  <span>Rs.{{total.[0].total}}</span>
+                  <span>Rs.{{total}}</span>
                 </li>
                 <li
                   class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold text-uppercase">
                   Total
-                  <span>Rs.{{total.[0].total}}</span>
+                  <span>Rs.{{total}}</span>
                 </li>
               </ul>
             </div>
 
           </div>
         </div>
-        <button class="btn btn-success">proceed to pay</button>
+        <button id="rzp-button1" class="btn btn-success">proceed to pay</button>
       </div>
             </form>
 
@@ -87,3 +93,79 @@
   <!--Section: Design Block-->
 
 </div>
+<script type="text/javascript" src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  $(document).ready(function(e){
+    $('#paynow').submit(function(e){
+      e.preventDefault();
+      let formData = $(this).serialize();
+      $.ajax({
+        url:"/payment",
+        type:"post",
+        data:formData,
+        success:function(res){
+          if(res.cod) {
+            location.href = '/success'
+          } else  {
+            let amount = parseInt(res.paymentRes.response.amount)
+            let options = {
+    "key": "rzp_test_PXSiqk8gFjkf1Y",
+    "amount":(amount * 1000), 
+    "currency": "INR",
+    "name": "Hobnob",
+    "description": "Test Transaction",
+    "image": "/assets/Screenshot3062-31-Desktop-3.png",
+    "order_id":res.paymentRes.response.id , //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        verifyPayment(response,res.paymentRes.order)
+    },
+    "prefill": {
+        "name": res.paymentRes.user.name,
+        "email": res.paymentRes.user.email,
+        "contact": res.paymentRes.user.phone
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+
+          }
+      }
+     })
+    })
+  })
+function verifyPayment(payment,order) {
+    $.ajax({
+      url:'/verify-payment',
+      method:'post',
+      data:{
+        payment,
+        order
+      }
+    }).done((res)=> {
+      if(res.success) {
+        location.href="/success"
+      } else {
+        location.href ='/error'
+      }
+    })
+  }
+
+</script>

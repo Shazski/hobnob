@@ -4,8 +4,8 @@
           <div class="card">
             <div class="card-body">
                 <div class="d-flex">
-              <a href="/my-orders/{{user}}?status=current" class="card-title">Current Orders</a>
-              <a href="/my-orders/{{user}}?status=history" class="card-title ms-5">Order History</a>
+              <a  href="/my-orders/{{user}}?status=current&sort={{sortData}}" class="card-title text-decoration-none text-dark">Current Orders</a>
+              <a href="/my-orders/{{user}}?status=history&sort={{sortData}}" class="card-title ms-5 text-decoration-none text-dark">Order History</a>
                 </div>
               <div class="row">
                 <div class="col-12">
@@ -13,11 +13,11 @@
                     <table id="order-listing" class="table">
                       <thead>
                         <tr>
-                            <th>Purchased On</th>
-                            <th>Payment Status</th>
-                            <th>Payment</th>
-                            <th>Total Price</th>
-                            <th>Status</th>
+                            <th><a class="text-decoration-none text-dark" href="/my-orders/{{user}}?sort=orderDate&status={{status}}">Purchased On</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/my-orders/{{user}}?sort=paymentStatus&status={{status}}">Payment Status</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/my-orders/{{user}}?sort=paymentMode&status={{status}}">Payment Method</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/my-orders/{{user}}?sort=totalAmount&status={{status}}">Total Price</a></th>
+                            <th><a class="text-decoration-none text-dark" href="/my-orders/{{user}}?sort=status&status={{status}}">Status</a></th>
                             <th>Product</th>
                         </tr>
                       </thead>

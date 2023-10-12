@@ -1,0 +1,30 @@
+<div class="container">
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <h1 class="modal-title fs-6" id="exampleModalLabel">Edit Category</h1>
+      </div>
+      <div class="modal-body">
+        {{#if couponError}}
+        <p class="text-danger fw-bold">{{couponError}}</p>
+        {{/if}}
+        <form action="/admin/edit-coupon/{{couponDetails._id}}" method="post">
+            <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Enter Coupon Name</label>
+    <input required placeholder="Enter Coupon Name..." type="text" name="couponName" value="{{couponDetails.couponName}}" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter min Amount</label>
+    <input required placeholder="Enter Min amount" type="number" name="minAmount" value="{{couponDetails.minAmount}}" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter max Amount</label>
+    <input required placeholder="Enter max amount" type="number" name="maxAmount" value="{{couponDetails.maxAmount}}" class="form-control" id="exampleInputEmail4" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter discount Amount</label>
+    <input required placeholder="Enter discount" type="number" name="discountAmount" value="{{couponDetails.discountAmount}}" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter Expiry Date</label>
+    <input required placeholder="Enter discount" type="date" name="expiryDate" value="{{couponDetails.expiryDate}}" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
+  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

@@ -1,3 +1,4 @@
+<script src="/javascript/cart.js"></script>
 <div class="ms-5 mt-5">
 
   <div class="d-flex justify-content-start gap-3">
@@ -45,10 +46,11 @@
         <div class="d-flex">
           <p>Available Size:</p>
           {{#each productDetails.size}}
-            <p class="ms-2 border rounded-4">{{this}}</p>
+            <input type="radio" name="size" class="custom-radio mb-2 ms-2" value="{{this}}" id="size-{{@index}}">
+          <label for="size-{{@index}}">{{this}}</label>
           {{/each}}
         </div>
-        <button class="btn btn-success mt-1">Add to Cart</button>
+        <button onclick="addToCart('{{productDetails._id}}')" class="btn btn-success mt-1">Add to Cart</button>
       </div>
       <div class="mt-1 pt-2 row">
         <h3 class="d-none d-md-block">Product Details</h3>

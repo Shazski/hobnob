@@ -3,7 +3,7 @@
     <div>
       <form action="/admin/view-products" method="get" class="d-flex justify-content-start">
         <div class="text-start d-flex ms-3">
-<input type="search" class="form-control text-start ms-5 rounded-3"  placeholder="Search user..." aria-label="Search" aria-describedby="search-addon" name="search" style="font-size: 12px; padding: 0.25rem 0.5rem;">
+<input type="search" class="form-control text-start ms-5 rounded-3"  placeholder="Search Product..." aria-label="Search" aria-describedby="search-addon" name="search" style="font-size: 12px; padding: 0.25rem 0.5rem;">
           <button style="border: none;background-color:transparent;" type="submit" class="fas fa-search"></button>
         </div>
       </form>
@@ -58,7 +58,7 @@
     </li>
     <li class="page-item">
     {{#each pages}}
-      <a class="page-link" href="/admin/view-products?page={{this}}&search={{search}}">{{this}}</a>
+      <a class="page-link" href="/admin/view-products?page={{this}}&search={{../search}}">{{this}}</a>
     {{/each}}
     </li>
     <li class="page-item {{#unless hasNext}}disabled{{/unless}}">

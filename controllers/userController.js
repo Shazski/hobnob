@@ -10,6 +10,8 @@ const productSchema = require("../models/productSchema");
 const { isValidObjectId } = require("mongoose");
 const cartHelper = require("../helpers/getCartAmount");
 const mongoose = require('mongoose');
+const cartSchema = require("../models/cartSchema");
+const Banner = require('../models/bannerSchema')
 module.exports = {
   getUserLogin: (req, res) => {
     res.render("user/userLogin", { errorLogin: req.session.errorLogin });
@@ -17,6 +19,10 @@ module.exports = {
 
   getUserSignUp: (req, res) => {
     res.render("user/userSignUp", { error: req.session.error });
+  },
+  getRefferalUserSignUp: (req, res) => {
+    const refferalId = req.params.id
+    res.render("user/userRefferalSignUp", { error: req.session.error ,refferalId});
   },
 
   generateOtp: async (req, res) => {
@@ -83,6 +89,57 @@ module.exports = {
           res.cookie("userJwt", token, { maxAge: 3600000 });
           req.session.user = userId;
           res.redirect("/");
+        } else {
+          console.log("user signUp failed");
+          res.status(500);
+        }
+      } else {
+        req.session.error = "Otp Is Not Valid";
+        res.redirect("/sign-up");
+      }
+    } catch (error) {
+      if (error.code === 11000) {
+        req.session.error = "Email Is Already Taken";
+        res.redirect("/sign-up");
+      }
+    }
+  },
+  PostRefferalUserSignUp: async (req, res) => {
+    const { name, blockStatus, email, otp, phone, password, refferalCode } = req.body;
+console.log(refferalCode,"coodedede")
+    try {
+      const verifyOtp = await Otp.findOne({
+        $and: [{ Email: email }, { Otp: otp }],
+      });
+
+      if (verifyOtp) {
+        if(refferalCode) {
+        const userId = await User.create({
+          name: name,
+          blockStatus: blockStatus,
+          email: email,
+          phone: phone,
+          password: password,
+          created: new Date().toLocaleDateString(),
+          refferalCode:refferalCode
+        });
+
+        if (userId) {
+          let token = sign(
+            { userId: userId, email: email },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+          );
+           let userData = await User.findOneAndUpdate({_id:refferalCode},{
+            $inc:{
+              wallet: 20
+            }
+           })
+           console.log(userData,"useeeeerrrr")
+           res.cookie("userJwt", token, { maxAge: 3600000 });
+           req.session.user = userId;
+           res.redirect("/");
+          }
         } else {
           console.log("user signUp failed");
           res.status(500);
@@ -207,7 +264,9 @@ module.exports = {
     let productDetails = await productSchema
       .find({ stock: { $gt: 0 }, status: true })
       .lean();
-    res.render("user/home", { user: req.session.user, productDetails });
+    let banner = await Banner.find().lean()
+    console.log(banner, "banner")   
+    res.render("user/home", { user: req.session.user, productDetails, banner });
   },
 
   getUserLogout: (req, res) => {
@@ -288,8 +347,11 @@ module.exports = {
     if (userId) {
       try {
         const user = await User.findById(userId).lean();
-        const total = await cartHelper.getTotalAmount(userId);
-        res.render("user/checkout", { user: user, total });
+        const total = await cartSchema.findOne({user:req.session.user._id},{
+          _id:false,totalAmount:true
+        }).lean()
+        console.log(total.totalAmount,"amount")
+        res.render("user/checkout", { user: user, total:total.totalAmount });
       } catch (error) {
         console.log(error);
       }

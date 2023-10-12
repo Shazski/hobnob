@@ -1,18 +1,19 @@
 const sharp = require("sharp");
+const mongoose = require("mongoose");
 const Category = require("../models/categorySchema");
 const productSchema = require("../models/productSchema");
 const path = require("path");
 const fs = require("fs");
 const generatePages = require("../service/pageGenerator");
 const { isValidObjectId } = require("mongoose");
+const categorySchema = require("../models/categorySchema");
 module.exports = {
   getViewProduct: async (req, res) => {
     try {
       const id = req.params.id;
-      if(!isValidObjectId(id)) {
-        res.render('error',{user: req.session.user})
+      if (!isValidObjectId(id)) {
+        res.render("error", { user: req.session.user });
       } else {
-
         const productDetails = await productSchema.findById(id).lean();
         if (!productDetails) {
           res.render("error", { user: req.session.user });
@@ -20,11 +21,11 @@ module.exports = {
           res.render("user/viewProduct", {
             productDetails: productDetails,
             user: req.session.user,
-          })
+          });
         }
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   },
 
@@ -154,11 +155,11 @@ module.exports = {
       let updateProduct = await productSchema.findByIdAndUpdate(proId, {
         ...product,
       });
-      let productStatus = await productSchema.findById(proId)
-      if(productStatus.status === false && productStatus.stock > 0) {
-        await productSchema.findByIdAndUpdate(proId,{
-          status: true
-        })
+      let productStatus = await productSchema.findById(proId);
+      if (productStatus.status === false && productStatus.stock > 0) {
+        await productSchema.findByIdAndUpdate(proId, {
+          status: true,
+        });
       }
       res.redirect("/admin/view-products");
     } catch (error) {
@@ -177,4 +178,81 @@ module.exports = {
       console.log(error);
     }
   },
+
+  getAllShopProducts: async (req, res) => {
+    try {
+      let brands = await productSchema
+        .find({}, { _id: false, brand: true })
+        .distinct("brand");
+      let category = await categorySchema.find({}, { category: 1 }).lean();
+      let search = req.query.search || "";
+      let brand = req.query.brand || brands;
+      let categorySearch = req.query.category || "";
+      let minAmount = parseInt(req.query.minAmount) || 10;
+      let maxAmount = parseInt(req.query.maxAmount) || 100000;
+      const userCount = await productSchema
+        .find({
+          name: { $regex: new RegExp(`^${search}`, "i") },
+        })
+        .count();
+      const pages = generatePages.generatePageNumbers(userCount);
+      let page = parseInt(req.query.page) || 1;
+      const hasPrev = page > 1;
+      const hasNext = page < pages.length;
+      const prevPage = hasPrev ? page - 1 : 1;
+      const nextPage = hasNext ? page + 1 : pages;
+      if(categorySearch !== "") {
+        const productDetails = await productSchema
+        .find({
+          name: { $regex: new RegExp(`^${search}`, "i") },
+          brand: { $in: brand },
+          category:{$in:categorySearch},
+          offerPrice:{$gt:minAmount,$lt:maxAmount}
+        })
+        .skip((page - 1) * 10)
+        .limit(10)
+        .lean();
+        res.render("user/viewShopProducts", {
+          brands,
+          productError: req.session.categoryError,
+          user: req.session.user,
+          search,
+          pages,
+          category,
+          productDetails,
+          prevPage,
+          nextPage,
+          hasPrev,
+          hasNext,
+        });
+      }else {
+        const productDetails = await productSchema
+        .find({
+          name: { $regex: new RegExp(`^${search}`, "i") },
+          brand: { $in: brand },
+          offerPrice:{$gte:minAmount,$lte:maxAmount}
+        })
+        .skip((page - 1) * 10)
+        .limit(10)
+        .lean();
+        res.render("user/viewShopProducts", {
+          brands,
+          productError: req.session.categoryError,
+          user: req.session.user,
+          search,
+          pages,
+          category,
+          productDetails,
+          prevPage,
+          nextPage,
+          hasPrev,
+          hasNext,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+ 
 };

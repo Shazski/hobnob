@@ -66,6 +66,7 @@ module.exports = {
   getUserDetails: async (req, res) => {
     try {
       let search = req.query.search || "";
+      let sortData = req.query.sort || "created"
       const userCount = await User.find({
         name: { $regex: new RegExp(`^${search}`, "i") },
       }).count();
@@ -77,7 +78,7 @@ module.exports = {
       const nextPage = hasNext ? page + 1 : pages;
       const userDetails = await User.find({
         name: { $regex: new RegExp(`^${search}`, "i") },
-      })
+      }).sort(sortData)
         .skip((page - 1) * 10)
         .limit(10)
         .lean();

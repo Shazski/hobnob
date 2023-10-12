@@ -26,6 +26,31 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-6" id="exampleModalLabel">return Reason</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{#if returnError}}
+        <p class="text-danger fw-bold">{{returnError}}</p>
+        {{/if}}
+        <form action="/return-reason/{{orderDetails._id}}" method="post">
+            <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Enter Reason</label>
+    <input required placeholder="Enter reason Here" type="text" name="reason" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
   <div class="container">
     <!-- Title -->
     <div class="d-flex justify-content-between align-items-center py-3">
@@ -100,6 +125,7 @@
                         </div>
                       </div>
                     </td>
+                    <td>{{size}}</td>
                     <td>{{quantity}}</td>
                     <td class="text-end">Rs.{{product.offerPrice}}</td>
                   </tr>
@@ -140,8 +166,12 @@
                   >{{orderDetails.paymentStatus}}</span></p>
                   {{#if cancel}}
                   <button class="btn btn-danger text-white btn-sm " data-bs-toggle="modal" data-bs-target="#exampleModal" > Cancel Order</button>
-                  {{else}}  
-                  <button class="btn btn-danger text-white btn-sm " data-bs-toggle="modal" data-bs-target="#exampleModal" > Return Order</button>
+                  {{else if returned}}  
+                  <button class="btn btn-danger text-white btn-sm " data-bs-toggle="modal" data-bs-target="#exampleModal2" > Return Order</button>
+                 {{else if canceled}}
+                 <p></p>
+                 {{else}}
+                 <p>Return period over</p>
                  {{/if}}
               </div>
               

@@ -28,6 +28,12 @@
                       <span class="description">Total Orders</span>
                       <span class="heading">{{orderCount}}</span>
                     </div>
+                    {{#if user.wallet}}
+                    <div class="mt-5">
+                      <span class="description">Wallet Balance</span>
+                      <span class="heading">Rs.{{user.wallet}}</span>
+                    </div>
+                    {{/if}}
                   </div>
                 </div>
               </div>
@@ -53,7 +59,10 @@
                 <div>
                   <a  href="/profile/address" class="ni education_hat mr-2 btn btn-sm btn-light border-none">+Add Address</a>
                 </div>
-
+                <div>
+                  <p>Your Refferal Link</p>
+                  <a  href="/sign-up/{{user._id}}" class="ni education_hat mr-2 btn btn-sm btn-light border-none">localhost:3000/sign-up/{{user._id}}</a>
+                </div>
               </div>
             </div>
           </div>

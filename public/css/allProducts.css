@@ -5,11 +5,7 @@
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
-.wrapper{
-    padding: 30px;
-    max-width: 1200px;
-    margin: auto;
-}
+
 .h3{
     font-weight: 900;
 }
@@ -54,7 +50,6 @@
     position: absolute;
     top: 0px;
     left: 0;
-    height: 20px;
     width: 20px;
     background-color: #f8f8f8;
     border: 1px solid #ddd;
@@ -237,7 +232,6 @@ div.h6,h6{
 }
 img{
     width: 192px;
-    height: 132px;
     object-fit: contain;
 }
 
@@ -252,17 +246,7 @@ img{
         display: none;
     }
 }
-@media(min-width:768px) and (max-width:991px){
-    .radio, .checkbox {
-        padding: 6px 10px;
-        width: 49%;
-        float: left;
-        margin: 5px 5px 5px 0px;
-    }
-    .filter,#mobile-filter{
-        display: none;
-    }
-}
+
 @media(min-width:576px) and (max-width:767px){
     #sidebar{
         width: 35%;

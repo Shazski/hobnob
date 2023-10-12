@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const productSchema = require("../models/productSchema");
 const cartHelper = require("../helpers/getCartAmount");
 const cartProductHelper = require("../helpers/getProducts");
+const WishList = require('../models/wishlistSchema')
 module.exports = {
   getCartProducts: async (req, res) => {
     const userId = req.session.user._id;
@@ -24,6 +25,7 @@ module.exports = {
           $project: {
             item: "$products.item",
             quantity: "$products.quantity",
+            size: "$products.size",
           },
         },
 
@@ -41,6 +43,7 @@ module.exports = {
             item: 1,
             quantity: 1,
             product: { $arrayElemAt: ["$product", 0] },
+            size: 1,
           },
         },
       ]);
@@ -67,29 +70,34 @@ module.exports = {
   addToCart: async (req, res) => {
     const userId = req.session.user._id;
     const proId = req.params.id;
+    const { size } = req.body;
     if (userId) {
       let proObj = {
         item: proId,
         quantity: 1,
+        size: size,
       };
       const userCart = await Cart.findOne({ user: userId });
-      console.log(userCart, "userCart");
       if (userCart) {
         const proPresent = await Cart.findOne({
           user: userId,
           "products.item": proId,
+          "products.size": size,
         });
-        console.log(proPresent, "present");
+        console.log(proPresent,"product present")
         if (proPresent) {
           let data = await Cart.updateOne(
-            { user: userId, "products.item": proId },
+            {
+              user: userId,
+              $and: [{ "products.item": proId }, { "products.size": size }],
+            },
             { $inc: { "products.$.quantity": 1 } }
           );
         } else {
           const pushedData = await Cart.updateOne(
             { user: userId },
             {
-              $push: { products: [{ item: proId, quantity: 1 }] },
+              $push: { products: [{ item: proId, quantity: 1, size: size }] },
             }
           );
         }
@@ -100,7 +108,31 @@ module.exports = {
         };
         console.log(userCart, "userCart");
         let cartProduct = await Cart.create({
-          products: [{ item: proId, quantity: 1 }],
+          products: [{ item: proId, quantity: 1, size: size }],
+          user: userId,
+        });
+      }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
+    }
+  },
+  addToWishList: async (req, res) => {
+    const userId = req.session.user._id;
+    const proId = req.params.id;
+    console.log(proId,userId,"all details")
+    if (userId) {
+      const userWishlist = await WishList.findOne({ user: userId });
+      if (userWishlist) {
+          const pushedData = await WishList.updateOne(
+            { user: userId },
+            {
+              $addToSet: { products: [proId] },
+            }
+          );
+      } else {
+        let cartProduct = await WishList.create({
+          products: proId,
           user: userId,
         });
       }
@@ -110,43 +142,70 @@ module.exports = {
     }
   },
 
+  getWishProducts: async(req, res) => {
+   let wishProduct = await WishList.findOne({user:req.session.user._id}).populate("products").lean()
+   res.render('user/wishlist',{wishProduct,user:req.session.user})
+  },
+
   changeQuantity: async (req, res) => {
-    let { user, cartId, proId, count, quantity } = req.body;
+    let { user, cartId, proId, count, quantity, size } = req.body;
+    console.log(size, "sizeeeee");
     count = parseInt(count);
     quantity = parseInt(quantity);
     if (count === -1 && quantity === 1) {
+      console.log(user, cartId, size, proId, "remove product true");
       await Cart.updateOne(
-        { user: user, _id: cartId },
+        { _id: cartId,user: user,
+          $and: [{ user: user }, { _id: cartId }],
+          products: {
+            $elemMatch: { size: size, item: proId },
+          },
+        }  ,
         {
-          $pull: { products: { item: proId } },
+          $pull: { products: { item: proId, size: size } },
         }
       );
       res.json({ removeProduct: true });
     } else {
-      let product = await cartProductHelper.getCartProductsDetails(user,proId)
-      if(product[0].product.stock === quantity && count === 1) {
-        res.json({status:false})
-      }else if (product[0].product.stock === quantity && count === -1) {
+      console.log(user, cartId, size, proId, "out of stock");
+      let product = await cartProductHelper.getCartProductsDetails(user, proId);
+      if (product[0].product.stock === quantity && count === 1) {
+        console.log(user, cartId, size, proId, "out of stock gone");
+        res.json({ status: false });
+      } else if (product[0].product.stock === quantity && count === -1) {
+        console.log(user, cartId, size, proId, "out of stock minus");
         await Cart.updateOne(
-          { user: user, _id: cartId, "products.item": proId },
+          {
+            $and: [{ user: user }, { _id: cartId }],
+            products: {
+              $elemMatch: { size: size, item: proId },
+            },
+          },
           {
             $inc: { "products.$.quantity": count },
           }
-          );
-          let total = await cartHelper.getTotalAmount(user);
-      res.json(total);
+        );
+        let total = await cartHelper.getTotalAmount(user);
+        res.json(total);
       } else {
-
-        await Cart.updateOne(
-          { user: user, _id: cartId, "products.item": proId },
+        console.log(user, cartId, size, proId, "out of stock last case worked");
+        let cartschema = await Cart.findOne();
+        console.log(cartschema.products, "cartschema");
+        await Cart.findOneAndUpdate(
+          {
+            $and: [{ user: user }, { _id: cartId }],
+            products: {
+              $elemMatch: { size: size, item: proId },
+            },
+          },
           {
             $inc: { "products.$.quantity": count },
           }
-          );
-          let total = await cartHelper.getTotalAmount(user);
-      res.json(total);
+        );
+        let total = await cartHelper.getTotalAmount(user);
+        res.json(total);
+      }
     }
-  }
   },
 
   changeSize: async (req, res) => {
@@ -174,14 +233,17 @@ module.exports = {
   },
 
   removeProduct: async (req, res) => {
-    const proId = req.params.id;
+    console.log("is call comming");
+    const proId = req.query.proId;
+    const size = req.query.size;
+    console.log(size, "remove size");
     if (req.session.user) {
       const userId = req.session.user._id;
       try {
         await Cart.updateOne(
-          { user: userId },
+          { $and: [{ user: userId }, { "products.size": size }] },
           {
-            $pull: { products: { item: proId } },
+            $pull: { products: { item: proId, size: size } },
           }
         );
         res.redirect("/cart");
@@ -193,4 +255,16 @@ module.exports = {
       res.redirect("/login");
     }
   },
+
+  updateTotalAmount: async(req, res) => {
+    const { amount } = req.body
+    try {
+      await Cart.findOneAndUpdate({user:req.session.user._id},{
+        totalAmount:parseInt(amount)
+      })
+      res.json({success:true})
+    } catch (error) {
+      console.log(error)
+    }
+  }
 };

@@ -12,7 +12,7 @@ require("./config/connection");
 const PORT = process.env.PORT || 3001;
 
 //logger
-app.use(logger("dev"));
+app.use(logger("dev")); 
 
 //session storage
 app.use(

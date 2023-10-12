@@ -11,8 +11,9 @@ const UserCartSchema = new Schema({
       size: { type: String },
     },
   ],
-  couponId: {type: Schema.Types.ObjectId},
+  couponId: { type: Schema.Types.ObjectId },
   user: { type: Schema.Types.ObjectId },
+  totalAmount: { type: Number },
 });
 
 module.exports = mongoose.model("UserCart", UserCartSchema);

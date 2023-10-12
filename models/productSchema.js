@@ -11,7 +11,7 @@ const ProductsSchema = new Schema({
   basePrice: { type: Number, required: true },
   category: { type: Schema.Types.ObjectId, required: true, ref: 'category' },
   brand: { type: String, required: true },
-  offerPrice: { type: String, required: true },
+  offerPrice: { type: Number, required: true },
   gender: { type: String, required: true },
   status: { type: Boolean, required: true },
   color: { type: String, required: true },

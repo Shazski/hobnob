@@ -1,0 +1,102 @@
+<div class="container">
+  <div>
+    <div class="d-flex justify-content-between">
+      <form action="/admin/coupon-management" method="get" class="d-flex justify-content-start">
+        <div class="text-start d-flex ms-3">
+<input type="search" class="form-control text-start ms-5 rounded-3"  placeholder="Search coupon" aria-label="Search" aria-describedby="search-addon" name="search" style="font-size: 12px; padding: 0.25rem 0.5rem;">
+          <button style="border: none;background-color:transparent;" type="submit" class="fas fa-search"></button>
+        </div>
+      </form>
+     <!-- Button trigger modal -->
+ <button class="btn text-white btn-sm " data-bs-toggle="modal" data-bs-target="#exampleModal" style="background-color: #088173;height: 30px;"> <i class="fa fa-plus"></i>Add Coupon</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-6" id="exampleModalLabel">Add Category</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{#if categoryError}}
+        <p class="text-danger fw-bold">{{couponError}}</p>
+        {{/if}}
+        <form action="/admin/coupon-management" method="post">
+ <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Enter Coupon Name</label>
+    <input required placeholder="Enter Coupon Name..." type="text" name="couponName" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter min Amount</label>
+    <input required placeholder="Enter Min amount" type="number" name="minAmount" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter max Amount</label>
+    <input required placeholder="Enter max amount" type="number" name="maxAmount" class="form-control" id="exampleInputEmail4" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter discount Amount</label>
+    <input required placeholder="Enter discount" type="number" name="discountAmount" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter Expiry Date</label>
+    <input required placeholder="Enter discount" type="date" name="expiryDate" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
+  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-sm btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+    <table class="table table-responsive-sm align-middle mb-0 bg-white mt-1">
+      <thead class="bg-light ">
+        <tr style="font-size: 12px;" class="rounded-5">
+          <th>Coupon Name</th>
+          <th>Min Amount</th>
+          <th>Max Amount</th>
+          <th>Discount Amount</th>
+          <th>Expiry Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each couponDetails}}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="ms-2">
+                <p class="fw-bold mb-0" style="font-size: 12px;">{{couponName}}</p>
+              </div>
+            </div>
+          </td>
+          <td>
+            <p class="fw-normal mb-0" style="font-size: 12px;">{{minAmount}}</p>
+          </td>
+          <td style="font-size: 12px;">{{maxAmount}}</td>
+          <td style="font-size: 12px;">{{discountAmount}}</td>
+          <td style="font-size: 12px;">{{expiryDate}}</td>
+          <td>
+            <a  href="/admin/edit-coupon/{{_id}}" class="" ><img width="10px" src="/assets/pen.png" alt="" srcset="" style="width:20px"></a>
+            <a onclick="return confirm('do you want to delete this category')" href="/admin/delete-coupon/{{_id}}" class="" ><img width="10px" src="/assets/trash.png" alt="" srcset="" style="width:20px"></a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+    <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+      <a href="/admin/category-management?page={{prevPage}}&search={{search}}" class="page-link">Previous</a>
+    </li>
+    {{#each pages}}
+    <li class="page-item">
+      <a class="page-link" href="/admin/category-management?page={{this}}&search={{../search}}">{{this}}</a>
+    </li>
+    {{/each}}
+    <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+      <a class="page-link" href="/admin/category-management?page={{nextPage}}&search={{search}}">Next</a>
+    </li>
+  </ul>
+</nav>
+
+  </div>
+</div>
+
+

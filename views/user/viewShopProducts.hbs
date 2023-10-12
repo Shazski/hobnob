@@ -1,0 +1,149 @@
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<!------ Include the above in your HEAD tag ---------->
+
+
+
+<br>
+<p class="text-center">More bootstrap 4 components on <a href="http://bootstrap-ecommerce.com/">
+        Bootstrap-ecommerce.com</a></p>
+<hr>
+<div class="d-flex mt-5">
+    <div class="col-md-3">
+        <aside class="col-md-12">
+
+            <div class="card">
+                <article class="card-group-item">
+                    <header class="card-header">
+                        <h6 class="title">Brands </h6>
+                    </header>
+                    <div class="filter-content">
+                        <div class="card-body">
+                            <form action="/shop">
+                                {{#each brands}}
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="brand" value="{{this}}">
+                                    <span class="form-check-label">
+                                        {{this}}
+                                    </span>
+                                </label> <!-- form-check.// -->
+                                {{/each}} <!-- form-check.// -->
+
+                        </div> <!-- card-body.// -->
+                    </div>
+                </article> <!-- card-group-item.// -->
+
+                <article class="card-group-item">
+                    <header class="card-header">
+                        <h6 class="title">Choose Category </h6>
+                    </header>
+                    <div class="filter-content">
+                        <div class="card-body">
+   
+                                {{#each category}}
+                            <label class="form-check">
+                                <input class="form-check-input" type="radio" name="category" value="{{this._id}}">
+                                <span class="form-check-label">
+                                    {{this.category}}
+                                </span>
+                            </label>
+                            {{/each}}
+                        </div> <!-- card-body.// -->
+                    </div>
+                </article> <!-- card-group-item.// -->
+            </div> <!-- card.// -->
+
+
+
+
+        </aside> <!-- col.// -->
+        <aside class="col-md-12">
+
+
+
+                                    
+            <div class="card">
+                <article class="card-group-item">
+                    <header class="card-header">
+                        <h6 class="title">Range input </h6>
+                    </header>
+                    <div class="filter-content">
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                        <label>Min</label>
+                                        <input type="number" name="minAmount" min="10" class="form-control" id="inputEmail4" placeholder="Rs.0">
+                                </div>
+                                <div class="form-group col-md-6 text-right">
+                                    <label>Max</label>
+                                    <input type="number" name="maxAmount" class="form-control" placeholder="Rs.1,0000">
+                                    <button class="btn btn-success btn-sm mt-2">Apply</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div> <!-- card-body.// -->
+                    </div>
+                </article> <!-- card-group-item.// -->
+            </div> <!-- card.// -->
+
+    </div>
+    {{#each productDetails}}
+    <div class="col-md-3 ">
+        <div class="md-row d-flex justify-content-center gap-3">
+            <div class="container">
+                <div class="card rounded-4 col-md-12" style="width: 13rem;height: 21.3rem;">
+                    <div class="rounded-4 mt-2 position-relative" style="background-color:#D9D9D9;">
+                        <a class="" href=""><i class="fa fa-heart fa-lg position-absolute"
+                                style="top: 10%;right:5%;color: rgb(111, 111, 111);"></i></a>
+                        <a href="/view-product/{{_id}}"><img src="/uploads/cropped/{{this.images.[0]}}"
+                                class="card-img-top" alt="..." /></a>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-start">{{name}}</h6>
+                        <h5 class="fs-6 text-start">{{brand}}</h5>
+                        <div class="text-start">
+                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
+                        </div>
+                        <div class="text-start fs-6">
+                            <p style="color: #088173;font-size: 12px;!important"
+                                class="text-decoration-line-through fw-light">Rs.{{basePrice}}</p>
+                        </div>
+                        <div class="d-flex justify-content-between me-2" style="margin-top: -1rem;">
+                            <h6 style="color: #088173" class="fw-medium fs-6  ">Rs.{{offerPrice}}</h6>
+                            <a style="margin-top: -0.8rem;" class="ps-4 pb-5 ms-5 ps-4"
+                                onclick="addToCart('{{_id}}')"><span><img style="width: 2rem;"
+                                        src="/assets/Component 4.png" alt="" /></span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+
+</div>
+
+</aside> <!-- col.// -->
+
+
+</div>
+<!--container end.//-->
+<nav aria-label="Page navigation example">
+    <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
+        <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
+            <a href="/shop?page={{prevPage}}&search={{search}}" class="page-link">Previous</a>
+        </li>
+        {{#each pages}}
+        <li class="page-item">
+            <a class="page-link" href="/shop?page={{this}}&search={{../search}}">{{this}}</a>
+        </li>
+        {{/each}}
+        <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+            <a class="page-link" href="/shop?page={{nextPage}}&search={{search}}">Next</a>
+        </li>
+    </ul>
+</nav>
+<br><br>

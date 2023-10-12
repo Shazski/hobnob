@@ -30,7 +30,7 @@ module.exports = {
               categoryDetails,
               prevPage,
               nextPage,
-              hasPrev,
+              hasPrev, 
               hasNext,
             });
           } catch (error) {

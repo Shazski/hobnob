@@ -11,9 +11,9 @@
     <table class="table table-responsive-sm align-middle mb-0 bg-white mt-1">
       <thead class="bg-light ">
         <tr style="font-size: 12px;" class="rounded-5">
-          <th>Name</th>
+          <th><a class="text-decoration-none text-dark" href="/admin/user-management?sort=name">Name</a></th>
           <th>Phone</th>
-          <th>Joined</th>
+          <th><a class="text-decoration-none text-dark" href="/admin/user-management?sort=created">Joined</a></th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -25,7 +25,7 @@
             <div class="d-flex align-items-center">
               <img src="https://mdbootstrap.com/img/new/avatars/8.jpg" alt="" style="width: 20px; height: 20px" class="rounded-circle" />
               <div class="ms-2">
-                <p class="fw-bold mb-0" style="font-size: 12px;">{{name}}</p>
+                <a href="/admin/view-user-orders/{{_id}}" class="fw-bold mb-0" style="font-size: 12px;">{{name}}</a>
                 <p class="text-muted mb-0" style="font-size: 10px;">{{email}}</p>
               </div>
             </div>
@@ -58,11 +58,11 @@
     <li class="page-item {{#unless hasPrev}}disabled{{/unless}}">
       <a href="/admin/user-management?page={{prevPage}}&search={{search}}" class="page-link">Previous</a>
     </li>
-    <li class="page-item">
     {{#each pages}}
+    <li class="page-item">
       <a class="page-link" href="/admin/user-management?page={{this}}&search={{../search}}">{{this}}</a>
-    {{/each}}
     </li>
+    {{/each}}
     <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
       <a class="page-link" href="/admin/user-management?page={{nextPage}}&search={{search}}">Next</a>
     </li>

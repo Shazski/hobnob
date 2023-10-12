@@ -15,7 +15,7 @@ const UserSchema = new Schema({
     },
   ],
   created: { type: String },
-  refferalCode: { type: String },
+  refferalCode: { type: Schema.Types.ObjectId },
   password: { type: String, required: true },
   blockStatus: { type: Boolean, required: true },
   wallet: { type: Number },
