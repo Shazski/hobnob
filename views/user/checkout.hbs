@@ -49,6 +49,7 @@
           <input type="text" name="userId" value="{{user._id}}" hidden>
           <div class="card-body">
             <div class="row">
+              
               <div class="col-md-4">
                 <p>Razor Pay</p>
                 <img src="/assets/razor pay.png"
@@ -58,6 +59,11 @@
                 <img  src="/assets/cod.png"
                   class="rounded-3  img-fluid ms-4 " style="width: 50px;"  alt="Blue Jeans Jacket" />
                 <input type="radio" name="paymentMethod" checked value="cod" id="">
+                <p class="mt-2">Wallet</p>
+                <p id="walletError"></p>
+                <img  src="/assets/group 2075.png"
+                  class="rounded-3  img-fluid ms-4 " style="width: 50px;"  alt="Blue Jeans Jacket" />
+                <input type="radio" name="paymentMethod"  value="wallet" id="">
               </div>
             
             </div>
@@ -106,11 +112,15 @@
         success:function(res){
           if(res.cod) {
             location.href = '/success'
+          } else if(res.wallet) {
+            location.href = '/success'
+          } else if(res.walletError) {
+            $("#walletError").text(res.error).css("color","red")
           } else  {
             let amount = parseInt(res.paymentRes.response.amount)
             let options = {
     "key": "rzp_test_PXSiqk8gFjkf1Y",
-    "amount":(amount * 1000), 
+    "amount":amount , 
     "currency": "INR",
     "name": "Hobnob",
     "description": "Test Transaction",

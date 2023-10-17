@@ -120,4 +120,6 @@ router
   .all(adminAuth.adminAuth)
   .get(bannerController.deleteBanner);
 
+ router.route('/view-refferals').all(adminAuth.adminAuth).get(adminController.getAllRefferals) 
+
 module.exports = router;

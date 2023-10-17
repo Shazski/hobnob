@@ -173,6 +173,9 @@
                  {{else}}
                  <p>Return period over</p>
                  {{/if}}
+            
+                 <button  onclick="createInvoice('{{orderDetails._id}}')" class="btn btn-success btn-md">Invoice</button>
+              
               </div>
               
               <div class="col-lg-6">
@@ -200,3 +203,20 @@
     </div>
   </div>
 </div>
+
+
+<script>
+  function createInvoice(orderId) {
+    console.log(orderId,"order id")
+    $.ajax({
+      url:'/download-invoice/' + orderId,
+      method:"post"
+    }).done((res) => {
+      const pdfPath = `/pdf/${orderId}.pdf`
+        const link = document.createElement('a');
+        link.href = pdfPath;
+        link.download = 'invoice.pdf';
+        link.click();
+    })
+  }
+</script>

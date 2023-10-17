@@ -167,6 +167,6 @@ router
   .all(userAuth.userAuth, userAuth.checkStatus)
   .get(cartController.getWishProducts);
 
-
+router.route("/download-invoice/:id").post(orderController.postInvoice);
 
 module.exports = router;

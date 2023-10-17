@@ -1,11 +1,9 @@
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
 <!------ Include the above in your HEAD tag ---------->
 
 
 
 <br>
-<p class="text-center">More bootstrap 4 components on <a href="http://bootstrap-ecommerce.com/">
-        Bootstrap-ecommerce.com</a></p>
 <hr>
 <div class="d-flex mt-5">
     <div class="col-md-3">
@@ -38,10 +36,10 @@
                     </header>
                     <div class="filter-content">
                         <div class="card-body">
-   
+    
                                 {{#each category}}
                             <label class="form-check">
-                                <input class="form-check-input" type="radio" name="category" value="{{this._id}}">
+                                <input class="form-check-input" type="checkbox" name="category" value="{{this._id}}">
                                 <span class="form-check-label">
                                     {{this.category}}
                                 </span>
@@ -90,11 +88,11 @@
     <div class="col-md-3 ">
         <div class="md-row d-flex justify-content-center gap-3">
             <div class="container">
-                <div class="card rounded-4 col-md-12" style="width: 13rem;height: 21.3rem;">
-                    <div class="rounded-4 mt-2 position-relative" style="background-color:#D9D9D9;">
+                <div class="card rounded-4 col-md-12" style="width: 13rem;height: 22.3rem;">
+                    <div class="rounded-4 mt-2 ms-2 position-relative" style="background-color:#D9D9D9;width: 12rem;">
                         <a class="" href=""><i class="fa fa-heart fa-lg position-absolute"
                                 style="top: 10%;right:5%;color: rgb(111, 111, 111);"></i></a>
-                        <a href="/view-product/{{_id}}"><img src="/uploads/cropped/{{this.images.[0]}}"
+                        <a href="/view-product/{{_id}}"><img  src="/uploads/cropped/{{this.images.[0]}}"
                                 class="card-img-top" alt="..." /></a>
                     </div>
                     <div class="card-body">
@@ -123,7 +121,12 @@
         </div>
     </div>
     {{/each}}
-
+    {{#if noProduct}}
+    <div style="">
+        <img style="width: 350px;height: 300px;margin-left: 200px;" class="" src="/assets/672-6722829_no-result-found.png" alt="">
+    <h6 style="margin-left: 11rem;" class="text-center">Sorry we cannot find any products related to your search</h6>
+    </div>
+    {{/if}}
 </div>
 
 </aside> <!-- col.// -->

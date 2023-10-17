@@ -16,7 +16,8 @@ const ProductsSchema = new Schema({
   status: { type: Boolean, required: true },
   color: { type: String, required: true },
   created: { type: String },
-  updated:{type: String}
+  updated:{type: String},
+  offerExpiryDate:{type:Date}
 });
 
 module.exports = mongoose.model('Products', ProductsSchema);

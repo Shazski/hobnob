@@ -61,6 +61,19 @@
             Offer Price of product
           </label>
         </div>
+        <div>
+          <input
+            required
+            type="date"
+            name="offerExpiryDate"
+            id="offerExpiryDate"
+            class="formbold-form-input"
+            value="{{formattedDate}}"
+          />
+          <label for="offerExpiryDate" class="formbold-form-label">
+            Offer Expiry Date
+          </label>
+        </div>
       </div>
       <div class="formbold-input-flex">
         <div>
@@ -174,3 +187,15 @@
   0, 0.05); }
 
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const offerExpiryDateInput = document.getElementById('offerExpiryDate');
+
+
+  // Format the offer expiry date and set it in the date input
+    console.log(productDetails,"productDetails")
+    const formattedDate = new Date(product.offerExpiryDate).toISOString().split('T')[0];
+    offerExpiryDateInput.value = new Date()
+  })
+</script>

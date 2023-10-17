@@ -31,74 +31,119 @@
     ></button>
   </div>
   <div class="offcanvas-body">
+      <p style="font-size: xx-small;">ADMIN PANEL</p>
     <a
-      href="#"
-      class="list-group-item list-group-item-action py-2 ripple"
+    onclick="addActive('dashboard')"
+    id="dashboard"
+      href="/admin/admin-panel"
+      class="list-group-item list-group-item-action py-2  side-panel-item"
       aria-current="true"
     >
-      <p style="font-size: xx-small;">ADMIN PANEL</p>
       <i class="fa-fw me-3"><img
           src="/assets/smart-home.png"
           alt=""
           srcset=""
-        /></i><span class="fs-6 fw-semibold">Dashboard</span>
+        /></i><span class="fs-6   fw-semibold ">Dashboard</span>
     </a>
     <a
+    onclick="addActive('order')"
       href="/admin/order-management/"
-      class="list-group-item list-group-item-action py-2 ripple active"
+      class="list-group-item list-group-item-action py-2  side-panel-item"
+      id="order"
     >
       <i class="fa-fw me-3"><img src="/assets/shopping-cart.png" alt="" /></i><span
-        class="fs-6 fw-semibold text-secondary"
+        class="fs-6 fw-semibold "
       >Orders</span>
     </a>
     <a
-      href="/admin/user-management/"
-      class="list-group-item list-group-item-action py-2 ripple active"
+    onclick="addActive('customer')"
+      href="/admin/user-management/" id="customer"
+      class="list-group-item list-group-item-action py-2   side-panel-item"
     >
       <i class="fa-fw me-3"><img src="/assets/users.png" alt="" /></i><span
-        class="fs-6 fw-semibold text-secondary"
+        class="fs-6 fw-semibold "
       >Customers</span>
     </a>
-    <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
-        class="fas fa-lock fa-fw me-3"
-      ></i><span class="fs-6 fw-semibold text-secondary">Password</span></a>
-    <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
-        class="fas fa-chart-line fa-fw me-3"
-      ></i><span class="fs-6 fw-semibold text-secondary">Analytics</span></a>
-    <a href="/admin/coupon-management" class="list-group-item list-group-item-action py-2 ripple">
-      <i class="fas fa-chart-pie fa-fw me-3"></i><span
-        class="fs-6 fw-semibold text-secondary"
+    <a
+    onclick="addActive('customer')"
+      href="/admin/view-refferals/" id="customer"
+      class="list-group-item list-group-item-action py-2   side-panel-item"
+    >
+      <i class="fa-fw me-3"><img src="/assets/users.png" alt="" /></i><span
+        class="fs-6 fw-semibold "
+      >Reffered Users</span>
+    </a>
+    <a onclick="addActive('coupon')" href="/admin/coupon-management" id="coupon" class="list-group-item list-group-item-action py-2  side-panel-item">
+      <i class="fas fa-chart-pie fa-light   fa-fw me-3"></i><span
+        class="fs-6 fw-semibold "
       >Coupon</span>
     </a>
-    <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
-        class="fas fa-chart-bar fa-fw me-3"
-      ></i><span class="fs-6 fw-semibold text-secondary">Orders</span></a>
-    <a href="/admin/category-management" class="list-group-item list-group-item-action py-2 ripple">
+
+    <a onclick="addActive('category')" href="/admin/category-management" id="category" class="list-group-item list-group-item-action py-2  side-panel-item">
       <i class="fa-fw me-3"> <img src="/assets/Group.png" alt="" srcset=""></i><span
-        class="fs-6 fw-semibold text-secondary"
+        class="fs-6 fw-semibold "
       >Category</span>
     </a>
     <p style="font-size: xx-small;">PRODUCTS</p>
-    <a href="/admin/add-product" class="list-group-item list-group-item-action py-2 ripple"><img src="/assets/circle-plus.png" alt="" srcset=""><i
+    <a onclick="addActive('addProduct')" href="/admin/add-product" id="addProduct" class="list-group-item list-group-item-action py-2   side-panel-item"><img src="/assets/circle-plus.png" alt="" srcset=""><i
         class=" fa-fw me-3"
       ></i><span
-        class="fs-6 fw-semibold text-secondary"
+        class="fs-6 fw-semibold "
       >Add product</span></a>
-    <a href="/admin/view-products" class="list-group-item list-group-item-action py-2 ripple"><img src="/assets/circle-plus.png" alt="" srcset=""><i
+    <a onclick="addActive('viewProduct')" href="/admin/view-products" id="viewProduct" class="list-group-item list-group-item-action py-2  side-panel-item"><img src="/assets/circle-plus.png" alt="" srcset=""><i
         class=" fa-fw me-3"
       ></i><span
-        class="fs-6 fw-semibold text-secondary"
+        class="fs-6 fw-semibold "
       >View products</span></a>
-    <a href="/admin/banner" class="list-group-item list-group-item-action py-2 ripple"><i
-        class="fas fa-building fa-fw me-3"
-      ></i><span class="fs-6 fw-semibold text-secondary">Banner</span></a>
-    <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
-        class="fas fa-calendar fa-fw me-3"
-      ></i><span class="fs-6 fw-semibold text-secondary">Calendar</span></a>
-    <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
-        class="fas fa-users fa-fw me-3"
-      ></i><span class="fs-6 fw-semibold text-secondary">Users</span></a>
+    <a onclick="addActive('banner')" href="/admin/banner" id="banner" class="list-group-item list-group-item-action py-2  side-panel-item"><i
+        class="fas  fa-building fa-fw me-3"
+      ></i><span class="fs-6 fw-semibold ">Banner</span></a>
     <a href="/admin/logout" class="list-group-item list-group-item-action py-2 ripple btn btn-danger"><i
       ></i><span class="fs-6 fw-semibold btn btn-danger text-white">Logout</span></a>
   </div>
 </div>
+
+<script>
+// JavaScript to handle item click and store active item in local storage
+const sidePanelItems = document.querySelectorAll('.side-panel-item');
+
+sidePanelItems.forEach(item => {
+  item.addEventListener('click', () => {
+    // Remove 'active' class from all items
+    sidePanelItems.forEach(item => {
+      item.classList.remove('active');
+    });
+
+    // Add 'active' class to the clicked item
+    item.classList.add('active');
+
+    // Store the active item ID in local storage
+    localStorage.setItem('activeItemId', item.id);
+  });
+});
+
+// Check if there's an active item stored in local storage
+const activeItemId = localStorage.getItem('activeItemId');
+if (activeItemId) {
+  const activeItem = document.getElementById(activeItemId);
+  if (activeItem) {
+    localStorage.removeItem('activeItemId');
+    activeItem.classList.remove('active');
+    activeItem.classList.add('active');
+  }
+}
+
+</script>
+
+<style>
+  .side-panel-item.active {
+  background-color: #b1b1b179; /* Active/selected item highlight color */
+  border-radius: 12px;
+  color: rgb(0, 0, 0) !important;
+}
+  .side-panel-item:hover {
+  background-color: #aaaaaa52; /* Active/selected item highlight color */
+  border-radius: 12px;
+  color: rgb(255, 255, 255) !important;
+}
+</style>

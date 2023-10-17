@@ -9,9 +9,9 @@ const hashpassword = require("../service/hashPassword");
 const productSchema = require("../models/productSchema");
 const { isValidObjectId } = require("mongoose");
 const cartHelper = require("../helpers/getCartAmount");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const cartSchema = require("../models/cartSchema");
-const Banner = require('../models/bannerSchema')
+const Banner = require("../models/bannerSchema");
 module.exports = {
   getUserLogin: (req, res) => {
     res.render("user/userLogin", { errorLogin: req.session.errorLogin });
@@ -21,8 +21,11 @@ module.exports = {
     res.render("user/userSignUp", { error: req.session.error });
   },
   getRefferalUserSignUp: (req, res) => {
-    const refferalId = req.params.id
-    res.render("user/userRefferalSignUp", { error: req.session.error ,refferalId});
+    const refferalId = req.params.id;
+    res.render("user/userRefferalSignUp", {
+      error: req.session.error,
+      refferalId,
+    });
   },
 
   generateOtp: async (req, res) => {
@@ -105,40 +108,44 @@ module.exports = {
     }
   },
   PostRefferalUserSignUp: async (req, res) => {
-    const { name, blockStatus, email, otp, phone, password, refferalCode } = req.body;
-console.log(refferalCode,"coodedede")
+    const { name, blockStatus, email, otp, phone, password, refferalCode } =
+      req.body;
+    console.log(refferalCode, "coodedede");
     try {
       const verifyOtp = await Otp.findOne({
         $and: [{ Email: email }, { Otp: otp }],
       });
 
       if (verifyOtp) {
-        if(refferalCode) {
-        const userId = await User.create({
-          name: name,
-          blockStatus: blockStatus,
-          email: email,
-          phone: phone,
-          password: password,
-          created: new Date().toLocaleDateString(),
-          refferalCode:refferalCode
-        });
+        if (refferalCode) {
+          const userId = await User.create({
+            name: name,
+            blockStatus: blockStatus,
+            email: email,
+            phone: phone,
+            password: password,
+            created: new Date().toLocaleDateString(),
+            refferalCode: refferalCode,
+          });
 
-        if (userId) {
-          let token = sign(
-            { userId: userId, email: email },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-          );
-           let userData = await User.findOneAndUpdate({_id:refferalCode},{
-            $inc:{
-              wallet: 20
-            }
-           })
-           console.log(userData,"useeeeerrrr")
-           res.cookie("userJwt", token, { maxAge: 3600000 });
-           req.session.user = userId;
-           res.redirect("/");
+          if (userId) {
+            let token = sign(
+              { userId: userId, email: email },
+              process.env.JWT_SECRET,
+              { expiresIn: "1h" }
+            );
+            let userData = await User.findOneAndUpdate(
+              { _id: refferalCode },
+              {
+                $inc: {
+                  wallet: 20,
+                },
+              }
+            );
+            console.log(userData, "useeeeerrrr");
+            res.cookie("userJwt", token, { maxAge: 3600000 });
+            req.session.user = userId;
+            res.redirect("/");
           }
         } else {
           console.log("user signUp failed");
@@ -264,8 +271,8 @@ console.log(refferalCode,"coodedede")
     let productDetails = await productSchema
       .find({ stock: { $gt: 0 }, status: true })
       .lean();
-    let banner = await Banner.find().lean()
-    console.log(banner, "banner")   
+    let banner = await Banner.find().lean();
+    console.log(banner, "banner");
     res.render("user/home", { user: req.session.user, productDetails, banner });
   },
 
@@ -278,10 +285,10 @@ console.log(refferalCode,"coodedede")
     let userId = req.session.user._id;
     if (userId) {
       let user = await User.findById(userId).lean();
-      let orderCount = await Order.find({customerId:userId}).count().lean()
-      console.log(orderCount,"count")
+      let orderCount = await Order.find({ customerId: userId }).count().lean();
+      console.log(orderCount, "count");
       if (user) {
-        res.render("user/profile", { user: user,orderCount });
+        res.render("user/profile", { user: user, orderCount });
       } else {
         res.render("user/profile", { user: req.session.user._id, orderCount });
       }
@@ -347,11 +354,16 @@ console.log(refferalCode,"coodedede")
     if (userId) {
       try {
         const user = await User.findById(userId).lean();
-        const total = await cartSchema.findOne({user:req.session.user._id},{
-          _id:false,totalAmount:true
-        }).lean()
-        console.log(total.totalAmount,"amount")
-        res.render("user/checkout", { user: user, total:total.totalAmount });
+        const total = await cartSchema
+          .findOne(
+            { user: req.session.user._id },
+            {
+              _id: false,
+              totalAmount: true,
+            }
+          )
+          .lean();
+        res.render("user/checkout", { user: user, total: total.totalAmount });
       } catch (error) {
         console.log(error);
       }
@@ -425,8 +437,8 @@ console.log(refferalCode,"coodedede")
         let userAddress = await User.findOne(
           { _id: userId },
           { _id: 0, addresses: { $elemMatch: { _id: addressId } } }
-        ).lean()
-        res.render('user/editAddress',{userAddress,user:req.session.user})
+        ).lean();
+        res.render("user/editAddress", { userAddress, user: req.session.user });
       } catch (error) {
         console.log(error);
       }
@@ -436,21 +448,26 @@ console.log(refferalCode,"coodedede")
     }
   },
 
-  postEditAddress: async(req, res) => {
-    const addressId = req.params.id
-    if(req.session.user) {
-      const userId = req.session.user._id
+  postEditAddress: async (req, res) => {
+    const addressId = req.params.id;
+    if (req.session.user) {
+      const userId = req.session.user._id;
       try {
-       let add =  await User.findOneAndUpdate({_id:userId,'addresses._id': new mongoose.Types.ObjectId(addressId)},{
-        $set:{
-          'addresses.$' : {...req.body}
-        }
-       })
-       console.log(add,'0address')
-       res.redirect('/profile')
+        let add = await User.findOneAndUpdate(
+          {
+            _id: userId,
+            "addresses._id": new mongoose.Types.ObjectId(addressId),
+          },
+          {
+            $set: {
+              "addresses.$": { ...req.body },
+            },
+          }
+        );
+        res.redirect("/profile");
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
-  }
+  },
 };

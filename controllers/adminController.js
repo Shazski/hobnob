@@ -4,7 +4,7 @@ const { sign } = require("jsonwebtoken");
 require("dotenv").config();
 const User = require("../models/userSchema");
 const generatePages = require("../service/pageGenerator");
-const Order = require('../models/orderSchema')
+const Order = require("../models/orderSchema");
 
 module.exports = {
   getAdminLogin: (req, res) => {
@@ -57,7 +57,7 @@ module.exports = {
   },
 
   getAdminPanel: (req, res) => {
-    res.render("admin/userManagement", {
+    res.render("admin/adminDashboard", {
       superAdmin: true,
       subAdmin: true,
     });
@@ -66,7 +66,7 @@ module.exports = {
   getUserDetails: async (req, res) => {
     try {
       let search = req.query.search || "";
-      let sortData = req.query.sort || "created"
+      let sortData = req.query.sort || "created";
       const userCount = await User.find({
         name: { $regex: new RegExp(`^${search}`, "i") },
       }).count();
@@ -78,7 +78,8 @@ module.exports = {
       const nextPage = hasNext ? page + 1 : pages;
       const userDetails = await User.find({
         name: { $regex: new RegExp(`^${search}`, "i") },
-      }).sort(sortData)
+      })
+        .sort(sortData)
         .skip((page - 1) * 10)
         .limit(10)
         .lean();
@@ -118,5 +119,38 @@ module.exports = {
     res.redirect("/admin/login");
   },
 
-  
+  getAllRefferals: async (req, res) => {
+    let search = req.query.search || "";
+   let userCount = await User.find({
+    name: { $regex: new RegExp(`^${search}`, "i") },
+      refferalCode: { $exists: true },
+    }).count()
+    const pages = generatePages.generatePageNumbers(userCount);
+      let page = parseInt(req.query.page) || 1;
+      const hasPrev = page >= 1;
+      const hasNext = page < pages.length;
+      const prevPage = hasPrev ? page - 1 : 1;
+      const nextPage = hasNext ? page + 1 : pages;
+    try {
+     let refferalUser = await User.find({
+      name: { $regex: new RegExp(`^${search}`, "i") },
+        refferalCode: { $exists: true },
+      })
+        .skip((page - 1) * 10)
+        .limit(10)
+        .lean();
+      res.render("admin/viewRefferals", {
+        superAdmin: true,
+        subAdmin: true,
+        pages,
+        refferalUser,
+        prevPage,
+        nextPage,
+        hasPrev,
+        hasNext,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };

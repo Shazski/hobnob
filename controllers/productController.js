@@ -7,6 +7,7 @@ const fs = require("fs");
 const generatePages = require("../service/pageGenerator");
 const { isValidObjectId } = require("mongoose");
 const categorySchema = require("../models/categorySchema");
+const { format } = require("path");
 module.exports = {
   getViewProduct: async (req, res) => {
     try {
@@ -47,6 +48,7 @@ module.exports = {
       description,
       status,
       category,
+      offerExpiryDate,
     } = req.body;
     try {
       for (const file of req.files) {
@@ -58,9 +60,9 @@ module.exports = {
         await sharp(file.destination + file.filename)
           .resize(parseInt(600), parseInt(600))
           .toFile(outputPath);
-        fs.unlinkSync(file.destination + file.filename);
       }
       const images = req.files.map((value, index, array) => value.filename);
+      let expiryDate = new Date(offerExpiryDate);
       let productDetails = await productSchema.create({
         name: name,
         color: color,
@@ -75,6 +77,7 @@ module.exports = {
         created: new Date().toLocaleDateString(),
         images: images,
         category: category,
+        offerExpiryDate: expiryDate,
       });
       if (productDetails) {
         res.redirect("/admin/add-product");
@@ -127,7 +130,12 @@ module.exports = {
     const proId = req.params.id;
     try {
       let productDetails = await productSchema.findById(proId).lean();
-      res.render("admin/editProducts", { productDetails });
+      const currentDate = productDetails.offerExpiryDate;
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const day = String(currentDate.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
+      res.render("admin/editProducts", { productDetails, formattedDate });
     } catch (error) {
       console.log(error);
     }
@@ -201,58 +209,92 @@ module.exports = {
       const hasNext = page < pages.length;
       const prevPage = hasPrev ? page - 1 : 1;
       const nextPage = hasNext ? page + 1 : pages;
-      if(categorySearch !== "") {
+      if (categorySearch !== "") {
         const productDetails = await productSchema
-        .find({
-          name: { $regex: new RegExp(`^${search}`, "i") },
-          brand: { $in: brand },
-          category:{$in:categorySearch},
-          offerPrice:{$gt:minAmount,$lt:maxAmount}
-        })
-        .skip((page - 1) * 10)
-        .limit(10)
-        .lean();
-        res.render("user/viewShopProducts", {
-          brands,
-          productError: req.session.categoryError,
-          user: req.session.user,
-          search,
-          pages,
-          category,
-          productDetails,
-          prevPage,
-          nextPage,
-          hasPrev,
-          hasNext,
-        });
-      }else {
+          .find({
+            name: { $regex: new RegExp(`^${search}`, "i") },
+            brand: { $in: brand },
+            category: { $in: categorySearch },
+            offerPrice: { $gt: minAmount, $lt: maxAmount },
+          })
+          .skip((page - 1) * 10)
+          .limit(10)
+          .lean();
+        if (productDetails.length > 0) {
+          res.render("user/viewShopProducts", {
+            brands,
+            productError: req.session.categoryError,
+            user: req.session.user,
+            search,
+            pages,
+            category,
+            productDetails,
+            prevPage,
+            nextPage,
+            hasPrev,
+            hasNext,
+          });
+        } else {
+          res.render("user/viewShopProducts", {
+            brands,
+            productError: req.session.categoryError,
+            noProduct: true,
+            user: req.session.user,
+            search,
+            pages,
+            category,
+            productDetails,
+            prevPage,
+            nextPage,
+            hasPrev,
+            hasNext,
+          });
+        }
+      } else {
         const productDetails = await productSchema
-        .find({
-          name: { $regex: new RegExp(`^${search}`, "i") },
-          brand: { $in: brand },
-          offerPrice:{$gte:minAmount,$lte:maxAmount}
-        })
-        .skip((page - 1) * 10)
-        .limit(10)
-        .lean();
-        res.render("user/viewShopProducts", {
-          brands,
-          productError: req.session.categoryError,
-          user: req.session.user,
-          search,
-          pages,
-          category,
-          productDetails,
-          prevPage,
-          nextPage,
-          hasPrev,
-          hasNext,
-        });
+          .find({
+            name: { $regex: new RegExp(`^${search}`, "i") },
+            brand: { $in: brand },
+            offerPrice: { $gte: minAmount, $lte: maxAmount },
+          })
+          .skip((page - 1) * 10)
+          .limit(10)
+          .lean();
+        if (productDetails.length > 0) {
+          console.log("products found");
+          res.render("user/viewShopProducts", {
+            brands,
+            productError: req.session.categoryError,
+            user: req.session.user,
+            search,
+            pages,
+            category,
+            productDetails,
+            prevPage,
+            nextPage,
+            hasPrev,
+            hasNext,
+          });
+        } else {
+          console.log("no product");
+          res.render("user/viewShopProducts", {
+            brands,
+            productError: req.session.categoryError,
+            noProduct: true,
+            user: req.session.user,
+            search,
+            pages,
+            category,
+            productDetails,
+            prevPage,
+            nextPage,
+            hasPrev,
+            hasNext,
+          });
+        }
       }
     } catch (error) {
       console.log(error);
     }
   },
-
- 
 };

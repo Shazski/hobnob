@@ -6,7 +6,7 @@ const OrdersSchema = new Schema({
   paymentMode: { type: String, required: true },
   items: [
     {
-      item: { type: Schema.Types.ObjectId },
+      item: { type: Schema.Types.ObjectId ,ref:"Products"},
       quantity: { type: Number },
       size: { type: String },
     },

@@ -6,6 +6,7 @@ const Product = require("../models/productSchema");
 const Payment = require("../models/paymentSchema");
 const Order = require("../models/orderSchema");
 const Cart = require("../models/cartSchema");
+const invoiceHelper = require('../service/invoice')
 const cartHelper = require("../helpers/getCartAmount");
 const paymentHelper = require("../helpers/paymentHelper");
 const productHelper = require("../helpers/getProducts");
@@ -40,18 +41,19 @@ module.exports = {
         }
       ).lean();
       const paymentStatus = paymentMethod === "cod" ? "placed" : "pending";
-      let orderDetails = await Order.create({
-        paymentMode: paymentMethod,
-        items: cartProducts.products,
-        orderDate: new Date().toLocaleDateString(),
-        customerId: userId,
-        status: "pending",
-        totalAmount: total.totalAmount,
-        address: userAddress.addresses[0],
-        couponId: cartProducts.couponId,
+      if(paymentMethod !== "wallet") {
+        let orderDetails = await Order.create({
+          paymentMode: paymentMethod,
+          items: cartProducts.products,
+          orderDate: new Date().toLocaleDateString(),
+          customerId: userId,
+          status: "pending",
+          totalAmount: total.totalAmount,
+          address: userAddress.addresses[0],
+          couponId: cartProducts.couponId,
         paymentStatus: paymentStatus,
-      });
-
+      }); 
+    }
       await paymentHelper.addPayment(userId, total.totalAmount, paymentMethod);
 
       for (const cartProduct of cartProducts.products) {
@@ -80,8 +82,44 @@ module.exports = {
           user: req.session.user,
         };
         res.json({ paymentRes });
-        console.log(response, orderDetails, "dasdasdsadsddkkkkkk");
         await Cart.findOneAndDelete({ user: userId });
+      } else if (paymentMethod === "wallet") {
+        console.log(req.body, "wallet worked");
+        let userWallet = await User.findOne(
+          { _id: req.session.user._id },
+          { _id: false, wallet: true }
+        );
+        console.log(userWallet.wallet,total.totalAmount);
+        if (userWallet.wallet >= total.totalAmount) {
+          await User.findOneAndUpdate(
+            { _id: req.session.user._id },
+            {
+              $inc: {
+                wallet: -total.totalAmount,
+              },
+            }
+          );
+          let orderDetails = await Order.create({
+            paymentMode: paymentMethod,
+            items: cartProducts.products,
+            orderDate: new Date().toLocaleDateString(),
+            customerId: userId,
+            status: "pending",
+            totalAmount: total.totalAmount,
+            address: userAddress.addresses[0],
+            couponId: cartProducts.couponId,
+          paymentStatus: paymentStatus,
+        }); 
+        await Order.findOneAndUpdate(
+          { _id: new mongoose.Types.ObjectId(orderDetails._id) },
+          { paymentStatus: "placed" }
+        );
+          res.json({ wallet: true });
+          await Cart.findOneAndDelete({ user: userId });
+        } else {
+          console.log("error happend");
+          res.json({walletError:true,error:"wallet amount is less than total amount"});
+        }
       }
     } else {
       res.clearCookie("userJwt");
@@ -250,7 +288,7 @@ module.exports = {
 
   getMyOrders: async (req, res) => {
     const userId = req.params.id;
-    const sortData = req.query.sort || ""
+    const sortData = req.query.sort || "";
     try {
       let orderCount = "";
       const status = req.query.status || "current";
@@ -281,7 +319,8 @@ module.exports = {
           status: {
             $nin: ["delivered", "returned", "canceled"],
           },
-        }).sort(sortData)
+        })
+          .sort(sortData)
           .skip((page - 1) * 10)
           .limit(10)
           .lean();
@@ -294,7 +333,7 @@ module.exports = {
           hasPrev,
           hasNext,
           status,
-          sortData
+          sortData,
         });
       } else {
         let orderDetails = await Order.find({
@@ -302,7 +341,8 @@ module.exports = {
           status: {
             $in: ["delivered", "returned", "canceled"],
           },
-        }).sort(sortData)
+        })
+          .sort(sortData)
           .skip((page - 1) * 10)
           .limit(10)
           .lean();
@@ -315,7 +355,7 @@ module.exports = {
           hasPrev,
           hasNext,
           status,
-          sortData
+          sortData,
         });
       }
     } catch (error) {
@@ -334,23 +374,22 @@ module.exports = {
         );
         let userDetails = await User.findById(orderDetails.customerId).lean();
 
-        if (orderDetails.status === 'canceled') {
-          console.log("cancel product worked")
+        if (orderDetails.status === "canceled") {
+          console.log("cancel product worked");
           res.render("user/myOrderDetails", {
             orderDetails: orderDetails,
             productDetails: productDetails,
             userDetails,
             canceled: true,
-            user:req.session.user
+            user: req.session.user,
           });
-        }else if(orderDetails.status !== "delivered") {
-          
+        } else if (orderDetails.status !== "delivered") {
           res.render("user/myOrderDetails", {
             orderDetails: orderDetails,
             productDetails: productDetails,
             userDetails,
             cancel: true,
-            user:req.session.user
+            user: req.session.user,
           });
         } else {
           let returned;
@@ -364,7 +403,7 @@ module.exports = {
             productDetails: productDetails,
             userDetails,
             returned,
-            user:req.session.user
+            user: req.session.user,
           });
         }
       } else {
@@ -389,7 +428,7 @@ module.exports = {
         }
       );
       let totalAmount = canceled.totalAmount;
-      if (canceled.paymentMode === "online") {
+      if (canceled.paymentMode === "online" || canceled.paymentMode === "wallet") {
         await userSchema.findByIdAndUpdate(req.session.user._id, {
           $inc: { wallet: totalAmount },
         });
@@ -400,7 +439,7 @@ module.exports = {
         const quantityToIncrement = orderProduct.quantity;
         console.log(productId, quantityToIncrement, "hello got it");
         await Product.findOneAndUpdate(
-          { _id: productId },
+          { _id: productId }, 
           { status: true, $inc: { stock: quantityToIncrement } }
         );
       }
@@ -443,8 +482,6 @@ module.exports = {
   },
 
   verifyPayment: async (req, res) => {
-    console.log(req.body);
-    console.log("verifypayment");
     let hmac = crypto.createHmac("sha256", process.env.RazorpaySecret);
     hmac.update(
       req.body.payment.razorpay_order_id +
@@ -495,4 +532,18 @@ module.exports = {
       console.log(error);
     }
   },
+
+  postInvoice: async(req, res) => {
+    const orderId = req.params.id
+    try {
+      let orderDetails = await Order.findOne({_id:orderId})
+      let productData = await Order.findOne({_id:orderId}).populate("items.item")
+      console.log(productData,"product datas")
+      console.log(orderDetails,"order details of invoice")
+      invoiceHelper.downloadInvoice(productData)   
+      res.json({success:true})  
+    } catch (error) {
+      console.log(error)
+    }
+  }
 };
