@@ -64,6 +64,7 @@
                 <img  src="/assets/group 2075.png"
                   class="rounded-3  img-fluid ms-4 " style="width: 50px;"  alt="Blue Jeans Jacket" />
                 <input type="radio" name="paymentMethod"  value="wallet" id="">
+                <p>Rs.{{user.wallet}}</p>
               </div>
             
             </div>
@@ -124,7 +125,7 @@
     "currency": "INR",
     "name": "Hobnob",
     "description": "Test Transaction",
-    "image": "/assets/Screenshot3062-31-Desktop-3.png",
+    "image": "hobnob ecommerce/public/assets/Screenshot3062-31-Desktop-3.png",
     "order_id":res.paymentRes.response.id , //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
     "handler": function (response){
         verifyPayment(response,res.paymentRes.order)
@@ -142,10 +143,7 @@
     }
 };
 var rzp1 = new Razorpay(options);
-document.getElementById('rzp-button1').onclick = function(e){
     rzp1.open();
-    e.preventDefault();
-}
 rzp1.on('payment.failed', function (response){
         alert(response.error.code);
         alert(response.error.description);

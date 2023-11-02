@@ -1,4 +1,5 @@
 const Category = require("../models/categorySchema")
+const Product = require("../models/productSchema")
 const generatePages = require('../service/pageGenerator')
 module.exports = {
 
@@ -39,9 +40,9 @@ module.exports = {
     },
 
     postCategory: async(req, res) => {
-        const {category} = req.body
+        const {category, offerExpiryDate, offerAmount} = req.body
         try {
-            const categoryDetail = await Category.create({category:category,created:new Date().toLocaleDateString()})
+            const categoryDetail = await Category.create({...req.body,created:new Date().toLocaleDateString()})
             req.session.categoryError = ""
             res.redirect('/admin/category-management')
         } catch (error) {
@@ -66,7 +67,13 @@ module.exports = {
       const catId = req.params.id
       try {
         let categoryDetails = await Category.findById(catId).lean()
-        res.render('admin/editCategory',{categoryDetails})
+        console.log(categoryDetails,"category")
+        const currentDate = new Date(categoryDetails?.offerExpiryDate);
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const day = String(currentDate.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
+        res.render('admin/editCategory',{categoryDetails,formattedDate})
       } catch (error) {
         console.log(error)
       }
@@ -74,9 +81,16 @@ module.exports = {
 
     postEditCategory: async(req, res) => {
       const catId = req.params.id
-      const { category } = req.body
+      const {category, offerExpiryDate, offerAmount} = req.body
       try {
-        await Category.findByIdAndUpdate(catId,{category:category})
+        await Category.findByIdAndUpdate(catId,{category:category,offerExpiryDate:new Date(offerExpiryDate),offerAmount:Math.abs(offerAmount)})
+        if(new Date() <= new Date(offerExpiryDate)) {
+          await Product.updateMany({category:catId,offerPrice :{$gt:offerAmount}},{
+            $inc :{
+              offerPrice:-offerAmount
+            }
+          })
+        }
         res.redirect('/admin/category-management')
       } catch (error) {
         console.log(error)

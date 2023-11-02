@@ -5,7 +5,7 @@ const { Schema, ObjectId } = mongoose;
 const CouponsSchema = new Schema({
   minAmount: { type: Number },
   maxAmount: { type: Number },
-  couponName: { type: String },
+  couponName: { type: String,unique:true },
   discountAmount: { type: Number },
   expiryDate: { type: Date },
   created: { type: String },

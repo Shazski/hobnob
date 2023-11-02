@@ -1,5 +1,5 @@
 <script src="/javascript/cart.js"></script>
-<div class="ms-5 mt-5">
+{{!-- <div class="ms-5 mt-5">
 
   <div class="d-flex justify-content-start gap-3">
     <div class="mt-5 col-4 col-md-4">
@@ -12,7 +12,7 @@
         <img
           id="mainImage"
           class="img-fluid"
-          src="/uploads/cropped/{{productDetails.images.[1]}}"
+          src="/uploads/cropped/{{productDetails.images.[0]}}"
           alt=""
         />
 
@@ -64,14 +64,7 @@
   type="application/javascript"
 ></script>
 
-<script>
 
-  function changeSrc(id) {
-  let mainImage = document.getElementById("mainImage")
-  mainImage.setAttribute('src',`/uploads/cropped/${id}`)
-  return id
-  }
-</script>
 
 <script>
   const options = {
@@ -81,4 +74,99 @@
     offset:{vartical: 0, horizontal: 10},
     scale: 1.5,  }
   new ImageZoom(document.getElementById("img-container"),options);
+</script> --}}
+
+<div class="container p-5 mt-5">
+  <div class="row">
+      <div class="col-sm-4 md-8">
+        <div id="mainImageContainer" class="product-cover col-sm-12" style="border-right: 1px solid black;">
+          <img
+            src="/uploads/cropped/{{productDetails.images.[0]}}"
+            id="mainImage"
+            alt="Cover Image"
+            class="img-fluid"
+          />
+        </div>
+        <div class="row">
+          {{#each productDetails.images}}
+            <div
+              class="product-images col-5 col-sm-3 mt-4 d-flex"
+              onclick="changeSrc('{{this}}')"
+            >
+              <img
+                src="/uploads/cropped/{{this}}"
+                alt="Product Image 2"
+                class="img-thumbnail"
+              />
+            </div>
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="col-sm-8">
+
+        <div class="product-info icons">
+          <h2>{{productDetails.brand}}</h2>
+          <div>Price
+            <dt class="text-decoration-line-through">{{productDetails.BasePrice}}</dt>
+            <dt>{{productDetails.offerPrice}}/-</dt>
+          </div>
+          <p>{{productDetails.description}}</p>
+        </div>
+
+        <h4>Sizes available</h4>
+        <div class=" col-2 col-sm-2 d-flex gap-2">
+          {{#each productDetails.size}}
+          <label for="size-{{@index}}" class="containerforsize">
+            <input type="radio" name="size" checked value="{{this}}"  id="size-{{@index}}"/>
+            <span  class="sizeselected btn size-btn border btn-lg">{{this}}</span>
+          </label>
+          {{/each}}
+        </div>
+        <button onclick="addToCart('{{productDetails._id}}')" class="btn btn-success mt-4">Add to Cart</button>
+
+      </div>
+  </div>
+</div>
+<script src="https://unpkg.com/js-image-zoom@0.4.1/js-image-zoom.js" type="application/javascript"></script>
+<script>
+  const options = {
+    width: 350,
+    height: 350,
+    zoomWidth: 200,
+    zoomheight: 200,
+    offset: { vertical: 0, horizontal: 100 }
+};
+
+new ImageZoom(document.getElementById("mainImageContainer"), options);
+
 </script>
+
+<script>
+
+  function changeSrc(id) {
+  let imgElement = document.getElementById("mainImage")
+    // Set the src attribute of the img element to the image URL
+    imgElement.src = `/uploads/cropped/${id}`; // Replace 'image.jpg' with your image URL
+    // Optionally, you can set other attributes like alt, width, and height
+    imgElement.alt = 'Image Description';
+    imageContainer.appendChild(imgElement);
+  return id
+  }
+</script>
+
+<style>
+  .containerforsize input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sizeselected {
+  background-color: #eee;
+}
+
+.containerforsize input:checked ~ .sizeselected {
+  background-color: #2196F3;
+}
+</style>

@@ -24,7 +24,7 @@
                       <tbody>
                         {{#each orderDetails}}
                         <tr>
-                            <td>{{this.orderDate}}</td>
+                            <td>{{formatDate orderDate}}</td>
                             <td>{{this.paymentStatus}}</td>
                             <td>{{this.paymentMode}}</td>
                             <td>{{this.totalAmount}}</td>

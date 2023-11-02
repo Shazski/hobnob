@@ -18,6 +18,10 @@ router
   .route("/admin-panel")
   .all(adminAuth.adminAuth)
   .get(adminController.getAdminPanel);
+router
+  .route("/admin-panel/:filter")
+  .all(adminAuth.adminAuth)
+  .get(adminController.getAdminPanelGraph);
 
 router
   .route("/user-management")
@@ -115,11 +119,20 @@ router
   .get(bannerController.getBanner)
   .post(upload.single("image"), bannerController.postBannner);
 
-  router
+router
   .route("/delete-banner/:id")
   .all(adminAuth.adminAuth)
   .get(bannerController.deleteBanner);
 
- router.route('/view-refferals').all(adminAuth.adminAuth).get(adminController.getAllRefferals) 
+router
+  .route("/view-refferals")
+  .all(adminAuth.adminAuth)
+  .get(adminController.getAllRefferals);
+
+router
+  .route("/download-csv")
+  .all(adminAuth.adminAuth)
+  .get(adminController.downloadCsv);
+
 
 module.exports = router;

@@ -5,7 +5,7 @@ const { Schema, ObjectId } = mongoose;
 const UserCartSchema = new Schema({
   products: [
     {
-      item: { type: Schema.Types.ObjectId },
+      item: { type: Schema.Types.ObjectId, ref:"Products" },
       quantity: { type: Number },
       couponId: { type: Schema.Types.ObjectId },
       size: { type: String },

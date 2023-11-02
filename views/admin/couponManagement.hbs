@@ -33,7 +33,7 @@
     <label for="exampleInputEmail1" class="form-label">Enter discount Amount</label>
     <input required placeholder="Enter discount" type="number" name="discountAmount" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
     <label for="exampleInputEmail1" class="form-label">Enter Expiry Date</label>
-    <input required placeholder="Enter discount" type="date" name="expiryDate" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
+    <input required placeholder="Enter discount" type="date" name="expiryDate" class="form-control" id="offerExpiryDate" aria-describedby="emailHelp">
   </div>
       </div>
       <div class="modal-footer">
@@ -71,7 +71,7 @@
           </td>
           <td style="font-size: 12px;">{{maxAmount}}</td>
           <td style="font-size: 12px;">{{discountAmount}}</td>
-          <td style="font-size: 12px;">{{expiryDate}}</td>
+          <td style="font-size: 12px;">{{formatDate expiryDate}}</td>
           <td>
             <a  href="/admin/edit-coupon/{{_id}}" class="" ><img width="10px" src="/assets/pen.png" alt="" srcset="" style="width:20px"></a>
             <a onclick="return confirm('do you want to delete this category')" href="/admin/delete-coupon/{{_id}}" class="" ><img width="10px" src="/assets/trash.png" alt="" srcset="" style="width:20px"></a>
@@ -100,3 +100,10 @@
 </div>
 
 
+<script>
+  // Get the current date in the format "YYYY-MM-DD"
+  var today = new Date().toISOString().split('T')[0];
+  
+  // Set the min attribute to the current date
+  document.getElementById("offerExpiryDate").min = today;
+</script>

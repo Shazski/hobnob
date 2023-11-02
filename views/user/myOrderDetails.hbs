@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid mt-5">
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -68,7 +68,7 @@
           <div class="card-body">
             <div class="mb-3 d-flex justify-content-between">
               <div>
-                <span class="me-3">{{orderDetails.orderDate}}</span>
+                <span class="me-3">{{formatDate orderDetails.orderDate}}</span>
                 <span class="me-3">{{orderDetails.paymentMode}}</span>
                 <span class="me-3">{{orderDetails.paymentStatus}}</span>
                 <span
@@ -79,7 +79,7 @@
                 <button
                   class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text"
                 ><i class="bi bi-download"></i>
-                  <span class="text">Invoice</span></button>
+                  <a onclick="createInvoice('{{orderDetails._id}}')" class="text">Invoice</a></button>
                 <div class="dropdown">
                   <button
                     class="btn btn-link p-0 text-muted"
@@ -173,8 +173,6 @@
                  {{else}}
                  <p>Return period over</p>
                  {{/if}}
-            
-                 <button  onclick="createInvoice('{{orderDetails._id}}')" class="btn btn-success btn-md">Invoice</button>
               
               </div>
               

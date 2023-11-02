@@ -120,7 +120,6 @@ module.exports = {
   addToWishList: async (req, res) => {
     const userId = req.session.user._id;
     const proId = req.params.id;
-    console.log(proId,userId,"all details")
     if (userId) {
       const userWishlist = await WishList.findOne({ user: userId });
       if (userWishlist) {
@@ -144,7 +143,12 @@ module.exports = {
 
   getWishProducts: async(req, res) => {
    let wishProduct = await WishList.findOne({user:req.session.user._id}).populate("products").lean()
-   res.render('user/wishlist',{wishProduct,user:req.session.user})
+   console.log(wishProduct,"wishproduct")
+   if(wishProduct.products.length > 0) {
+     res.render('user/wishlist',{wishProduct,user:req.session.user})
+   } else {
+    res.render('user/wishlist',{wishProduct,user:req.session.user,noProduct:true})
+   }
   },
 
   changeQuantity: async (req, res) => {
@@ -169,10 +173,10 @@ module.exports = {
     } else {
       console.log(user, cartId, size, proId, "out of stock");
       let product = await cartProductHelper.getCartProductsDetails(user, proId);
-      if (product[0].product.stock === quantity && count === 1) {
+      if (product[0].product.stock <= quantity && count === 1) {
         console.log(user, cartId, size, proId, "out of stock gone");
         res.json({ status: false });
-      } else if (product[0].product.stock === quantity && count === -1) {
+      } else if (product[0].product.stock <= quantity && count === -1) {
         console.log(user, cartId, size, proId, "out of stock minus");
         await Cart.updateOne(
           {
@@ -255,6 +259,27 @@ module.exports = {
       res.redirect("/login");
     }
   },
+  removeWishProduct: async (req, res) => {
+    const proId = req.query.proId;
+    console.log(proId,'id comming')
+    if (req.session.user) {
+      const userId = req.session.user._id;
+      try {
+        await WishList.updateOne(
+          {  user: userId  },
+          {
+            $pull: { products: proId },
+          }
+        );
+        res.redirect("/wishlist");
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      res.clearCookie("userJwt");
+      res.redirect("/login");
+    }
+  },
 
   updateTotalAmount: async(req, res) => {
     const { amount } = req.body
@@ -262,7 +287,15 @@ module.exports = {
       await Cart.findOneAndUpdate({user:req.session.user._id},{
         totalAmount:parseInt(amount)
       })
-      res.json({success:true})
+      let products = await Cart.findOne({user:req.session.user._id}).populate("products.item")
+      console.log(products,"checking the products")
+      for (const product of products.products) {
+        if(product.quantity > product.item.stock) {
+          res.json({success:false})
+        } else {
+          res.json({success:true})
+        }
+      }
     } catch (error) {
       console.log(error)
     }

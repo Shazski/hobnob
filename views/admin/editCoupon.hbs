@@ -17,7 +17,7 @@
     <label for="exampleInputEmail1" class="form-label">Enter discount Amount</label>
     <input required placeholder="Enter discount" type="number" name="discountAmount" value="{{couponDetails.discountAmount}}" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
     <label for="exampleInputEmail1" class="form-label">Enter Expiry Date</label>
-    <input required placeholder="Enter discount" type="date" name="expiryDate" value="{{couponDetails.expiryDate}}" class="form-control" id="exampleInputEmail3" aria-describedby="emailHelp">
+    <input required placeholder="Enter discount" type="date" name="expiryDate" value="{{couponDetails.expiryDate}}" class="form-control" id="offerExpiryDate" aria-describedby="emailHelp">
   </div>
       </div>
       <div class="modal-footer">
@@ -28,3 +28,11 @@
   </div>
 </div>
 </div>
+
+<script>
+  // Get the current date in the format "YYYY-MM-DD"
+  var today = new Date().toISOString().split('T')[0];
+  
+  // Set the min attribute to the current date
+  document.getElementById("offerExpiryDate").min = today;
+</script>

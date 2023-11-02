@@ -211,6 +211,8 @@
       }).done((res) => {
         if(res.success) {
         location.href = "/checkout"
+        } else {
+          alert("quantity stock out")
         }
       })
     } else {

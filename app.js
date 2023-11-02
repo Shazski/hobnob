@@ -4,32 +4,20 @@ const session = require("express-session");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const app = express();
-const cron = require('node-cron');
 const userRouter = require("./routers/userRouter");
 const adminRouter = require("./routers/adminRouter");
 const noCache = require("nocache");
-const productSchema = require("./models/productSchema");
+require('./helpers/ProductCronJob')
 require("dotenv").config();
 require("./config/connection");
 const PORT = process.env.PORT || 3001;
 
 //setting cron-job for product price update
-cron.schedule('*/2 * * * *', async () => {
-  console.log('Running cron job to update offer prices...');
-  let productDetails = await productSchema.find()
-  let currDate = new Date();
-      for (const product of productDetails) {
-        await productSchema.findOneAndUpdate(
-          {
-            offerExpiryDate: { $lt: currDate },
-          },
-          { offerPrice: product.basePrice }
-        );
-      }
-});
+
+
 
 //logger
-app.use(logger("dev")); 
+app.use(logger("dev"));
 
 //session storage
 app.use(
@@ -47,9 +35,19 @@ app.use(noCache());
 //view engine setup
 app.set("view engine", "hbs");
 app.engine(
+  
   "hbs",
   hbs.engine({
     extname: ".hbs",
+    helpers: {
+      formatDate: function(date) {
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, '0');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+    },
     defaultLayout: "layout",
     layoutsDir: __dirname + "/views/layout/",
     partialsDir: __dirname + "/views/partials",
@@ -67,7 +65,7 @@ app.use(express.static("public"));
 //router middleware
 app.use("/admin", adminRouter);
 app.use("/", userRouter);
-app.use("*", (req, res) => res.render('error'))
+app.use("*", (req, res) => res.render("error"));
 
 //server creating
 app.listen(PORT, () => {

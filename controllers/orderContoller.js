@@ -6,20 +6,22 @@ const Product = require("../models/productSchema");
 const Payment = require("../models/paymentSchema");
 const Order = require("../models/orderSchema");
 const Cart = require("../models/cartSchema");
-const invoiceHelper = require('../service/invoice')
+const invoiceHelper = require("../service/invoice");
 const cartHelper = require("../helpers/getCartAmount");
 const paymentHelper = require("../helpers/paymentHelper");
 const productHelper = require("../helpers/getProducts");
 const generatePages = require("../service/pageGenerator");
 const razorpayHelper = require("../service/razorpayService");
 const userSchema = require("../models/userSchema");
+const Coupon = require("../models/couponSchema");
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 module.exports = {
   getSuccess: (req, res) => {
     res.render("user/success", { user: req.session.user });
   },
 
   postOrder: async (req, res) => {
-    console.log(req.body, "body of order details");
+    let couponId = req.session.couponDetails
     const { address, paymentMethod, userId } = req.body;
     let userAddress = await User.findOne(
       { _id: userId },
@@ -41,19 +43,29 @@ module.exports = {
         }
       ).lean();
       const paymentStatus = paymentMethod === "cod" ? "placed" : "pending";
-      if(paymentMethod !== "wallet") {
-        let orderDetails = await Order.create({
+      let orderDetails
+      if (paymentMethod !== "wallet") {
+        await Coupon.findOneAndUpdate(
+          { _id: couponId },
+          {
+            $push: {
+              userId: req.session.user._id,
+            },
+          }
+        );
+        orderDetails  = await Order.create({
           paymentMode: paymentMethod,
           items: cartProducts.products,
-          orderDate: new Date().toLocaleDateString(),
+          orderDate: new Date(),
           customerId: userId,
           status: "pending",
           totalAmount: total.totalAmount,
           address: userAddress.addresses[0],
           couponId: cartProducts.couponId,
-        paymentStatus: paymentStatus,
-      }); 
-    }
+          paymentStatus: paymentStatus,
+          couponId:couponId
+        });
+      }
       await paymentHelper.addPayment(userId, total.totalAmount, paymentMethod);
 
       for (const cartProduct of cartProducts.products) {
@@ -89,7 +101,7 @@ module.exports = {
           { _id: req.session.user._id },
           { _id: false, wallet: true }
         );
-        console.log(userWallet.wallet,total.totalAmount);
+        console.log(userWallet.wallet, total.totalAmount);
         if (userWallet.wallet >= total.totalAmount) {
           await User.findOneAndUpdate(
             { _id: req.session.user._id },
@@ -102,23 +114,35 @@ module.exports = {
           let orderDetails = await Order.create({
             paymentMode: paymentMethod,
             items: cartProducts.products,
-            orderDate: new Date().toLocaleDateString(),
+            orderDate: new Date(),
             customerId: userId,
             status: "pending",
             totalAmount: total.totalAmount,
             address: userAddress.addresses[0],
             couponId: cartProducts.couponId,
-          paymentStatus: paymentStatus,
-        }); 
-        await Order.findOneAndUpdate(
-          { _id: new mongoose.Types.ObjectId(orderDetails._id) },
-          { paymentStatus: "placed" }
-        );
+            paymentStatus: paymentStatus,
+            couponId:couponId
+          });
+          await Coupon.findOneAndUpdate(
+            { _id: couponId },
+            {
+              $push: {
+                userId: req.session.user._id,
+              },
+            }
+          )
+          await Order.findOneAndUpdate(
+            { _id: new mongoose.Types.ObjectId(orderDetails._id) },
+            { paymentStatus: "placed" }
+          );
           res.json({ wallet: true });
           await Cart.findOneAndDelete({ user: userId });
         } else {
           console.log("error happend");
-          res.json({walletError:true,error:"wallet amount is less than total amount"});
+          res.json({
+            walletError: true,
+            error: "wallet amount is less than total amount",
+          });
         }
       }
     } else {
@@ -288,7 +312,7 @@ module.exports = {
 
   getMyOrders: async (req, res) => {
     const userId = req.params.id;
-    const sortData = req.query.sort || "";
+    const sortData = req.query.sort || {orderDate : -1};
     try {
       let orderCount = "";
       const status = req.query.status || "current";
@@ -342,7 +366,7 @@ module.exports = {
             $in: ["delivered", "returned", "canceled"],
           },
         })
-          .sort(sortData)
+          .sort(sortData )
           .skip((page - 1) * 10)
           .limit(10)
           .lean();
@@ -367,14 +391,13 @@ module.exports = {
     const orderId = req.params.id;
     try {
       let orderDetails = await Order.findById(orderId).lean();
-      console.log(orderDetails, "orderdetails of user");
       if (orderDetails) {
         let productDetails = await productHelper.getProductsDetails(
           orderDetails._id
         );
         let userDetails = await User.findById(orderDetails.customerId).lean();
 
-        if (orderDetails.status === "canceled") {
+        if (orderDetails.status === "canceled" || orderDetails.status === "returned") {
           console.log("cancel product worked");
           res.render("user/myOrderDetails", {
             orderDetails: orderDetails,
@@ -428,7 +451,10 @@ module.exports = {
         }
       );
       let totalAmount = canceled.totalAmount;
-      if (canceled.paymentMode === "online" || canceled.paymentMode === "wallet") {
+      if (
+        canceled.paymentMode === "online" ||
+        canceled.paymentMode === "wallet"
+      ) {
         await userSchema.findByIdAndUpdate(req.session.user._id, {
           $inc: { wallet: totalAmount },
         });
@@ -439,7 +465,7 @@ module.exports = {
         const quantityToIncrement = orderProduct.quantity;
         console.log(productId, quantityToIncrement, "hello got it");
         await Product.findOneAndUpdate(
-          { _id: productId }, 
+          { _id: productId },
           { status: true, $inc: { stock: quantityToIncrement } }
         );
       }
@@ -533,17 +559,21 @@ module.exports = {
     }
   },
 
-  postInvoice: async(req, res) => {
-    const orderId = req.params.id
+  postInvoice: async (req, res) => {
+    const orderId = req.params.id;
     try {
-      let orderDetails = await Order.findOne({_id:orderId})
-      let productData = await Order.findOne({_id:orderId}).populate("items.item")
-      console.log(productData,"product datas")
-      console.log(orderDetails,"order details of invoice")
-      invoiceHelper.downloadInvoice(productData)   
-      res.json({success:true})  
+      let orderDetails = await Order.findOne({ _id: orderId });
+      let productData = await Order.findOne({ _id: orderId }).populate(
+        "items.item"
+      );
+      console.log(productData, "product datas");
+      console.log(orderDetails, "order details of invoice");
+      invoiceHelper.downloadInvoice(productData);
+      res.json({ success: true });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  },
+
+  
 };

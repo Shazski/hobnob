@@ -12,7 +12,10 @@
             <div class="card">
                 <article class="card-group-item">
                     <header class="card-header">
+                        <div class="d-flex">
                         <h6 class="title">Brands </h6>
+                        <a class="ms-auto" href="/shop"><i class="fa fa-close"></i></a>
+                        </div>
                     </header>
                     <div class="filter-content">
                         <div class="card-body">
@@ -90,7 +93,7 @@
             <div class="container">
                 <div class="card rounded-4 col-md-12" style="width: 13rem;height: 22.3rem;">
                     <div class="rounded-4 mt-2 ms-2 position-relative" style="background-color:#D9D9D9;width: 12rem;">
-                        <a class="" href=""><i class="fa fa-heart fa-lg position-absolute"
+                        <a onclick="addToWishList('{{_id}}')" class="" href=""><i class="fa fa-heart fa-lg position-absolute"
                                 style="top: 10%;right:5%;color: rgb(111, 111, 111);"></i></a>
                         <a href="/view-product/{{_id}}"><img  src="/uploads/cropped/{{this.images.[0]}}"
                                 class="card-img-top" alt="..." /></a>
@@ -98,13 +101,6 @@
                     <div class="card-body">
                         <h6 class="text-start">{{name}}</h6>
                         <h5 class="fs-6 text-start">{{brand}}</h5>
-                        <div class="text-start">
-                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-                            <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-                        </div>
                         <div class="text-start fs-6">
                             <p style="color: #088173;font-size: 12px;!important"
                                 class="text-decoration-line-through fw-light">Rs.{{basePrice}}</p>
@@ -150,3 +146,14 @@
     </ul>
 </nav>
 <br><br>
+
+<script>
+    function addToWishList(proId) {
+    $.ajax({
+      url:"/add-to-wishlist/" + proId,
+      method: "post"
+    }).done((data) => {
+      console.log("hello")
+    })
+  }
+</script>

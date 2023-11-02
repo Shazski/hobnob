@@ -10,6 +10,10 @@
             <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Enter Category</label>
     <input required value="{{categoryDetails.category}}" placeholder="Enter Category Name..." type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter Offer</label>
+    <input required value="{{categoryDetails.offerAmount}}" placeholder="Enter Offer.." type="text" name="offerAmount" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <label for="exampleInputEmail1" class="form-label">Enter expiry Date of offer</label>
+    <input required value="{{formattedDate}}" placeholder="Enter Offer Expiry" type="date" name="offerExpiryDate" class="form-control" id="offerExpiryDate" aria-describedby="emailHelp">
   </div>
       </div>
       <div class="modal-footer">
@@ -20,3 +24,11 @@
   </div>
 </div>
 </div>
+
+<script>
+  // Get the current date in the format "YYYY-MM-DD"
+  var today = new Date().toISOString().split('T')[0];
+  
+  // Set the min attribute to the current date
+  document.getElementById("offerExpiryDate").min = today;
+</script>

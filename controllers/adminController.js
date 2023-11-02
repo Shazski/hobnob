@@ -5,13 +5,14 @@ require("dotenv").config();
 const User = require("../models/userSchema");
 const generatePages = require("../service/pageGenerator");
 const Order = require("../models/orderSchema");
-
+const productSchema = require("../models/productSchema");
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 module.exports = {
   getAdminLogin: (req, res) => {
     res.render("admin/adminLogin", { adminError: req.session.adminError });
   },
 
-  postAdminLogin: async (req, res) => {
+  postAdminLogin: async(req, res) => {
     const { userName, password } = req.body;
     console.log(req.body, "body");
     let adminExists = await Admin.findOne({ userName: userName });
@@ -56,12 +57,84 @@ module.exports = {
     }
   },
 
-  getAdminPanel: (req, res) => {
+  getAdminPanel: async(req, res) => {
+    let mostSellingProduct = await Order.aggregate([
+      // Unwind the 'items' array to deconstruct it into separate documents
+      { $unwind: '$items' },
+    
+      // Group by the 'item' and sum the 'quantity' for each product
+      {
+        $group: {
+          _id: '$items.item',
+          totalQuantity: { $sum: '$items.quantity' },
+        },
+      },
+    
+      // Sort in descending order to find the most sold product
+      { $sort: { totalQuantity: -1 } },
+    
+      // Limit to the first result to get the most sold product
+      { $limit: 5 },
+    ])
+    const productIds = mostSellingProduct.map((item) => item._id);
+    const quantity = mostSellingProduct.map((item) => item.totalQuantity)
+    console.log(quantity,'my quantity')
+    let productDetails = await productSchema.find({ _id: { $in: productIds } }).lean()
+    productDetails.forEach((product, index) => {
+      product.quantity = quantity[index];
+    });
     res.render("admin/adminDashboard", {
       superAdmin: true,
       subAdmin: true,
+      productDetails,
+      quantity
     });
   },
+
+  getAdminPanelGraph: async(req, res) => {
+    const filter = req.params.filter;
+    if(filter) {
+      const currentDate = new Date();
+      
+  let startDate, endDate;
+
+  if (filter === 'day') {
+    startDate = new Date(currentDate);
+    startDate.setDate(currentDate.getDate() - 7);
+    endDate = currentDate;
+  } else if (filter === 'month') {
+    startDate = new Date(currentDate);
+    startDate.setMonth(currentDate.getMonth() - 12);
+    endDate = currentDate;
+  } else if (filter === 'year') {
+    startDate = new Date(currentDate);
+    startDate.setFullYear(currentDate.getFullYear() - 5);
+    endDate = currentDate;
+  } else {
+    res.status(400).json({ message: 'Invalid filter.' });
+    return;
+  }
+  try {
+    // Query the MongoDB collection to retrieve orders within the specified date range
+    const orders = await Order.aggregate([{
+      $match:{orderDate: { $gte: startDate, $lte: endDate },status:{
+        $nin:["canceled","returned"]
+      }},
+    },{
+      $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$orderDate' } }, total: { $sum: '$totalAmount' } }
+    },{
+      $project:{
+        total:'$total'
+      }
+    }]);
+    res.json(orders)
+    
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching orders.' });
+  }
+} 
+  
+},
 
   getUserDetails: async (req, res) => {
     try {
@@ -153,4 +226,41 @@ module.exports = {
       console.log(error);
     }
   },
+
+  downloadCsv : async(req, res) => {
+    
+    let startDate = req.query.startDate 
+    let endDate = req.query.endDate 
+    let orders =await Order.find({orderDate:{
+      $gt:startDate,$lt:endDate
+    }}).lean()
+      if (orders.length === 0) {
+        res.status(404).send('No orders found.');
+        return;
+      }
+  
+      const csvWriter = createCsvWriter({
+        path: '/hobnob ecommerce/public/csv/orders.csv',
+        header : [
+          { id: 'paymentMode', title: 'Payment Mode' },
+          { id: 'orderDate', title: 'Order Date' },
+          { id: 'customerId', title: 'Customer ID' },
+          { id: 'status', title: 'Status' },
+          { id: 'totalAmount', title: 'Total Amount' },
+          { id: 'couponId', title: 'Coupon ID' },
+          { id: 'paymentStatus', title: 'Payment Status' },
+        ],
+      });
+  
+      csvWriter.writeRecords(orders)
+        .then(() => {
+          // Send the CSV file as a response for download
+          res.download('/hobnob ecommerce/public/csv/orders.csv', 'orders.csv', (err) => {
+            if (err) {
+              console.error('Error sending CSV file: ' + err);
+              res.status(500).send('Internal Server Error');
+            }
+          });
+        }); 
+      }
 };

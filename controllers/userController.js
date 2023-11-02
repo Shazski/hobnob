@@ -12,6 +12,7 @@ const cartHelper = require("../helpers/getCartAmount");
 const mongoose = require("mongoose");
 const cartSchema = require("../models/cartSchema");
 const Banner = require("../models/bannerSchema");
+let Cart = require('../models/cartSchema')
 module.exports = {
   getUserLogin: (req, res) => {
     res.render("user/userLogin", { errorLogin: req.session.errorLogin });
@@ -272,8 +273,13 @@ module.exports = {
       .find({ stock: { $gt: 0 }, status: true })
       .lean();
     let banner = await Banner.find().lean();
-    console.log(banner, "banner");
-    res.render("user/home", { user: req.session.user, productDetails, banner });
+    let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
+    console.log(cartCount,"cartCount")
+    if(cartCount) {
+      res.render("user/home", { user: req.session.user, productDetails, banner,cartCount : cartCount.products.length});
+    } else {
+      res.render("user/home", { user: req.session.user, productDetails, banner});
+    }
   },
 
   getUserLogout: (req, res) => {
@@ -285,10 +291,11 @@ module.exports = {
     let userId = req.session.user._id;
     if (userId) {
       let user = await User.findById(userId).lean();
+      let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
       let orderCount = await Order.find({ customerId: userId }).count().lean();
       console.log(orderCount, "count");
-      if (user) {
-        res.render("user/profile", { user: user, orderCount });
+      if (user && cartCount) {
+        res.render("user/profile", { user: user, orderCount,cartCount : cartCount?.products.length });
       } else {
         res.render("user/profile", { user: req.session.user._id, orderCount });
       }
@@ -353,6 +360,7 @@ module.exports = {
     const userId = req.session.user._id;
     if (userId) {
       try {
+        let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
         const user = await User.findById(userId).lean();
         const total = await cartSchema
           .findOne(
@@ -363,7 +371,7 @@ module.exports = {
             }
           )
           .lean();
-        res.render("user/checkout", { user: user, total: total.totalAmount });
+        res.render("user/checkout", { user: user, total: total.totalAmount, cartCount : cartCount?.products.length });
       } catch (error) {
         console.log(error);
       }
@@ -377,8 +385,9 @@ module.exports = {
     try {
       let userId = req.session.user._id;
       if (userId) {
+        let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
         let addressDetails = await User.findById(userId).lean();
-        res.render("user/allAddress", { user: addressDetails });
+        res.render("user/allAddress", { user: addressDetails ,cartCount : cartCount?.products.length});
       } else {
         res.clearCookie("userJwt");
         res.redirect("/login");
@@ -434,11 +443,12 @@ module.exports = {
     if (req.session.user) {
       const userId = req.session.user._id;
       try {
+        let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
         let userAddress = await User.findOne(
           { _id: userId },
           { _id: 0, addresses: { $elemMatch: { _id: addressId } } }
         ).lean();
-        res.render("user/editAddress", { userAddress, user: req.session.user });
+        res.render("user/editAddress", { userAddress, user: req.session.user,cartCount : cartCount?.products.length });
       } catch (error) {
         console.log(error);
       }

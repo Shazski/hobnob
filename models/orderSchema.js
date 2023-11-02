@@ -11,7 +11,7 @@ const OrdersSchema = new Schema({
       size: { type: String },
     },
   ],
-  orderDate: { type: String, required: true },
+  orderDate: { type: Date, required: true },
   customerId: { type: Schema.Types.ObjectId, required: true },
   status: { type: String, required: true },
   totalAmount: { type: Number, required: true },

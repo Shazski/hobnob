@@ -5,7 +5,6 @@ module.exports = {
     getBanner: async(req, res) => {
         try {
            let banner =  await Banner.find().lean()
-           console.log(banner)
            res.render('admin/banner',{banner,superAdmin:true,subAdmin:true})
         } catch (error) {
             console.log(error)
@@ -16,7 +15,6 @@ module.exports = {
         const { title } = req.body
         try {
             let image = req.file.filename
-            console.log(image,"image data")
             await Banner.create({
                 title: title,
                 image:image

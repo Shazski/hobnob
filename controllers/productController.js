@@ -1,6 +1,8 @@
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const Category = require("../models/categorySchema");
+const Order = require("../models/orderSchema");
+const Cart = require("../models/cartSchema");
 const productSchema = require("../models/productSchema");
 const path = require("path");
 const fs = require("fs");
@@ -8,19 +10,23 @@ const generatePages = require("../service/pageGenerator");
 const { isValidObjectId } = require("mongoose");
 const categorySchema = require("../models/categorySchema");
 const { format } = require("path");
+const { query } = require("express");
 module.exports = {
   getViewProduct: async (req, res) => {
     try {
       const id = req.params.id;
+      
       if (!isValidObjectId(id)) {
         res.render("error", { user: req.session.user });
       } else {
+        let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
         const productDetails = await productSchema.findById(id).lean();
         if (!productDetails) {
           res.render("error", { user: req.session.user });
         } else {
           res.render("user/viewProduct", {
             productDetails: productDetails,
+            cartCount : cartCount?.products.length,
             user: req.session.user,
           });
         }
@@ -66,8 +72,8 @@ module.exports = {
       let productDetails = await productSchema.create({
         name: name,
         color: color,
-        basePrice: parseInt(basePrice),
-        offerPrice: parseInt(offerPrice),
+        basePrice: Math.abs(parseInt(basePrice)),       
+        offerPrice: Math.abs(parseInt(offerPrice)),
         stock: parseInt(stock),
         brand: brand,
         gender: gender,
@@ -80,6 +86,14 @@ module.exports = {
         offerExpiryDate: expiryDate,
       });
       if (productDetails) {
+       let categorys =  await categorySchema.find({_id:category,offerExpiryDate:{$gt:new Date()}
+       })
+       console.log(categorys[0],"catgeorudasdsad")
+        await productSchema.updateMany({category:categorys[0]._id,offerPrice :{$gt:categorys[0].offerAmount}},{
+          $inc :{
+            offerPrice:-categorys[0].offerAmount
+          }
+        })
         res.redirect("/admin/add-product");
       } else {
         res.json(productDetails).status(404);
@@ -168,6 +182,10 @@ module.exports = {
         await productSchema.findByIdAndUpdate(proId, {
           status: true,
         });
+      } else if(productStatus.status === true && productStatus.stock === 0){
+        await productSchema.findByIdAndUpdate(proId, {
+          status: false,
+        });
       }
       res.redirect("/admin/view-products");
     } catch (error) {
@@ -198,9 +216,13 @@ module.exports = {
       let categorySearch = req.query.category || "";
       let minAmount = parseInt(req.query.minAmount) || 10;
       let maxAmount = parseInt(req.query.maxAmount) || 100000;
+      let cartCount = await Cart.find({user: req.session.user._id}).count().lean()
       const userCount = await productSchema
         .find({
-          name: { $regex: new RegExp(`^${search}`, "i") },
+          $or: [
+            { name: { $regex: search, $options: 'i' } }, 
+            { brand: { $regex: search, $options: 'i' } }, 
+        ]
         })
         .count();
       const pages = generatePages.generatePageNumbers(userCount);
@@ -212,7 +234,10 @@ module.exports = {
       if (categorySearch !== "") {
         const productDetails = await productSchema
           .find({
-            name: { $regex: new RegExp(`^${search}`, "i") },
+            $or: [
+              { name: { $regex: search, $options: 'i' } }, 
+              { brand: { $regex: search, $options: 'i' } }, 
+          ],
             brand: { $in: brand },
             category: { $in: categorySearch },
             offerPrice: { $gt: minAmount, $lt: maxAmount },
@@ -233,6 +258,7 @@ module.exports = {
             nextPage,
             hasPrev,
             hasNext,
+            cartCount
           });
         } else {
           res.render("user/viewShopProducts", {
@@ -248,12 +274,16 @@ module.exports = {
             nextPage,
             hasPrev,
             hasNext,
+            cartCount
           });
         }
       } else {
         const productDetails = await productSchema
           .find({
-            name: { $regex: new RegExp(`^${search}`, "i") },
+            $or: [
+              { name: { $regex: search, $options: 'i' } }, 
+              { brand: { $regex: search, $options: 'i' } }, 
+          ],
             brand: { $in: brand },
             offerPrice: { $gte: minAmount, $lte: maxAmount },
           })
@@ -274,6 +304,7 @@ module.exports = {
             nextPage,
             hasPrev,
             hasNext,
+            cartCount
           });
         } else {
           console.log("no product");
@@ -290,6 +321,7 @@ module.exports = {
             nextPage,
             hasPrev,
             hasNext,
+            cartCount
           });
         }
       }
@@ -297,4 +329,5 @@ module.exports = {
       console.log(error);
     }
   },
+
 };

@@ -1,56 +1,132 @@
-  <html>
-  <head>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
-      google.charts.setOnLoadCallback(drawChart3);
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
 
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ]);
+    function drawChart(data) {
+      var chartData = google.visualization.arrayToDataTable(data);
 
-        var options = {
-          title: 'Total Sales',
-          curveType: 'function',
-          legend: { position: 'bottom' }
-        };
+      var options = {
+        title: 'Total Sales',
+        curveType: 'function',
+        legend: { position: 'bottom' }
+      };
 
-        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+      chart.draw(chartData, options);
+    }
 
-        chart.draw(data, options);
-      }
-      function drawChart3() {
-        var data3 = google.visualization.arrayToDataTable([
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ]);
-
-        var options3 = {
-          title: 'Total Orders',
-          curveType: 'function',
-          legend: { position: 'bottom' }
-        };
-
-        var chart3 = new google.visualization.LineChart(document.getElementById('curve_chart3'));
-
-        chart3.draw(data3, options3);
-      }
-    </script>
-  </head>
-  <body>
-    <div class="d-flex ">
-    <div id="curve_chart" style="width: 400px; height: 300px; margin-left: 150px;"></div>
-    <div id="curve_chart3" style="width: 400px; height: 300px; margin-left: 150px;"></div>
+    function filterCharts(selectedFilter) {
+      // Make an AJAX request to fetch data based on the selected filter
+      $.ajax({
+        url: `/admin/admin-panel/${selectedFilter}`,
+        method: 'GET'
+      }).done(function (response) {
+    if (selectedFilter === 'day') {
+      // Assuming the response.data is an array of order data
+      var data = [['Date', 'Sales']];
+      response.forEach(function (item) {
+        data.push([item._id, item.total]);
+      });
+    } else if(selectedFilter === 'month'){
+      var data = [['Month', 'Sales']];
+      response.forEach(function (item) {
+        data.push([item._id, item.total]);
+      });
+    } else if(selectedFilter === 'year'){
+      var data = [['Year', 'Sales']];
+      response.forEach(function (item) {
+        data.push([item._id, item.total]);
+      });
+    }
+      drawChart(data);
+    })
+    }
+    // Initial call to draw the chart
+    filterCharts('day'); // You can set the default filter here
+  </script>
+</head>
+<body>
+  <div class="d-flex flex-column align-items-center">
+    <div class="filter-form mb-3">
+      <label for="filterYear">Filter</label>
+      <form action="/admin/admin-panel">
+      <div class="d-flex">
+      <select class="form-control" id="filterYear" name="filter" onchange="filterCharts(this.value)">
+        <option value="day">Day</option>
+        <option value="month">Month</option>
+        <option value="year">Year</option>
+      </select>
+      </div>
+      </form>
     </div>
-
-  </body>
+    <div>
+      <h4 class="text-center">Download Sales Report</h4>
+      <form action="/admin/download-csv">
+      <div class="d-flex">
+      <div>
+      <label for="filterYear">Start Date</label>
+      <input class="form-control" required type="date" name="startDate" id="startDate">
+      </div>
+      <div>
+      <label for="filterYear">End Date</label>
+      <input class="form-control" required type="date" name="endDate" id="endDate">
+      </div>
+      <div>
+      <button class="btn btn-success mt-4" type="submit">Download</button>
+      </div>
+      </div>
+      </form>
+    </div>
+    <div class="d-flex container">
+      <div id="curve_chart" style="width: 600px; height: 400px;"></div>
+    </div>
+  </div>
+  <div class="container mb-5">
+  <table class="table table-responsive-sm align-middle mb-0 bg-white mt-1">
+      <thead class="bg-light ">
+        <tr style="font-size: 12px;" class="rounded-5">
+          <th>Image</th>
+          <th>Name</th>
+          <th>CREATED</th>
+          <th>UPDATED</th>
+          <th>PRICE</th>
+          <th>Stock</th>
+          <th>Sold</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each productDetails}}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="/uploads/cropped/{{images.[0]}}" alt="" style="width: 20px; height: 20px" class="rounded-circle" />
+            </div>
+          </td>
+          <td>
+            <p class="fw-normal mb-0" style="font-size: 12px;">{{name}}</p>
+          </td>
+          <td style="font-size: 12px;">{{created}}</td>
+          <td style="font-size: 12px;">{{updated}}</td>
+          <td style="font-size: 12px;">{{offerPrice}}</td>
+          <td style="font-size: 12px;">{{stock}}</td>
+          <td style="font-size: 12px;">{{quantity}}</td>
+          <td>
+            {{#unless status}}
+            <span class="badge rounded-pill" style="font-size: 10px; background-color: rgb(238, 144, 144); color: rgb(125, 37, 37);">Stock Out</span>
+             {{else}}
+            <span class="badge rounded-pill" style="font-size: 10px; background-color: lightgreen; color: rgb(37, 125, 90);">In Stock</span>
+            {{/unless}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+      </div>
+</body>
 </html>

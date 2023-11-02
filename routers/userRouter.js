@@ -116,6 +116,10 @@ router
   .route("/remove-product/")
   .all(userAuth.userAuth, userAuth.checkStatus)
   .get(cartController.removeProduct);
+router
+  .route("/remove-wishlist-product/")
+  .all(userAuth.userAuth, userAuth.checkStatus)
+  .get(cartController.removeWishProduct);
 
 router
   .route("/edit-address/:id")

@@ -14,17 +14,15 @@
                 class="card-img-top"
                 alt="..."
               /></a>
+              <a onclick="return confirm('do you want to remove this product from wishlist')"
+                    href="/remove-wishlist-product?proId={{this._id}}" class=""><i
+                class="fa fa-trash fa-lg position-absolute"
+                style="top: 10%;right:5%;color: rgb(111, 111, 111);"
+              ></i></a>
           </div>
           <div class="card-body">
             <h6 class="text-start">{{name}}</h6>
             <h5 class="fs-6 text-start">{{brand}}</h5>
-            <div class="text-start">
-              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-              <i style="color: #fff700;" class="fa fa-star fa-md"></i>
-            </div>
             <div class="text-start fs-6">
               <p
                 style="color: #088173;font-size: 12px;!important"
@@ -51,4 +49,10 @@
       {{/each}}
     </div>
   </div>
+  {{#if noProduct}}
+    <div style="">
+        <img style="width: 350px;height: 300px;margin-left: 400px;" class="" src="/assets/672-6722829_no-result-found.png" alt="">
+    <h6  class="text-center">Sorry we cannot find any products related to your search</h6>
+    </div>
+    {{/if}}
 </section>

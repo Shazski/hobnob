@@ -239,3 +239,11 @@
   0, 0.05); }
 
 </style>
+
+<script>
+  // Get the current date in the format "YYYY-MM-DD"
+  var today = new Date().toISOString().split('T')[0];
+  
+  // Set the min attribute to the current date
+  document.getElementById("offerExpiryDate").min = today;
+</script>
