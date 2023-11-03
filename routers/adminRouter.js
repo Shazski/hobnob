@@ -133,6 +133,17 @@ router
   .route("/download-csv")
   .all(adminAuth.adminAuth)
   .get(adminController.downloadCsv);
-
+router.get(
+  "/count-orders-by-day",
+  adminController.getCount
+);
+router.get(
+  "/count-orders-by-month",
+  adminController.getCount
+);
+router.get(
+  "/count-orders-by-year",
+  adminController.getCount
+);
 
 module.exports = router;

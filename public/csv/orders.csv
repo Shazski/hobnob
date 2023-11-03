@@ -1,8 +1,3 @@
 Payment Mode,Order Date,Customer ID,Status,Total Amount,Coupon ID,Payment Status
-online,Thu Oct 19 2023 15:18:44 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,14000,,placed
-cod,Fri Oct 20 2023 15:19:08 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,5200,,placed
-wallet,Fri Oct 20 2023 15:19:22 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,14000,,placed
-cod,Fri Oct 20 2023 15:19:45 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,14800,,placed
-online,Fri Oct 20 2023 15:42:20 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,8000,,pending
-online,Fri Oct 20 2023 15:45:29 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,canceled,2800,,placed
-online,Tue Oct 24 2023 10:36:42 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,5200,,pending
+cod,Thu Nov 02 2023 16:32:34 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,10000,,placed
+cod,Thu Nov 02 2023 23:31:20 GMT+0530 (India Standard Time),6515737598db3e2cb83ef5d1,pending,14000,,placed

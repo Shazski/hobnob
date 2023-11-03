@@ -164,6 +164,10 @@
                   <span
                     class="badge bg-success rounded-pill"
                   >{{orderDetails.paymentStatus}}</span></p>
+                  {{#if couponDetails}}
+                  <p>Coupon Used:{{couponDetails.couponName}}</p>
+                  <p>Discount Amount:{{couponDetails.discountAmount}}</p>
+                  {{/if}}
                   {{#if cancel}}
                   <button class="btn btn-danger text-white btn-sm " data-bs-toggle="modal" data-bs-target="#exampleModal" > Cancel Order</button>
                   {{else if returned}}  

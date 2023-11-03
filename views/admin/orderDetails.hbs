@@ -79,6 +79,10 @@
               <h3 class="h6">Payment Method</h3>
               <p>{{orderDetails.paymentMode}}<br>
               Total: Rs.{{orderDetails.totalAmount}} <span class="badge bg-success rounded-pill">{{orderDetails.paymentStatus}}</span></p>
+              {{#if couponDetails}}
+                  <p>Coupon Used:{{couponDetails.couponName}}</p>
+                  <p>Discount Amount:{{couponDetails.discountAmount}}</p>
+                  {{/if}}
             </div>
             <div class="col-lg-6">
               <h3 class="h6">Address</h3>

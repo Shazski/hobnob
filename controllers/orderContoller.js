@@ -14,6 +14,7 @@ const generatePages = require("../service/pageGenerator");
 const razorpayHelper = require("../service/razorpayService");
 const userSchema = require("../models/userSchema");
 const Coupon = require("../models/couponSchema");
+const couponSchema = require("../models/couponSchema");
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 module.exports = {
   getSuccess: (req, res) => {
@@ -268,15 +269,15 @@ module.exports = {
         let productDetails = await productHelper.getProductsDetails(
           orderDetails._id
         );
-        console.log(productDetails);
         let userDetails = await User.findById(orderDetails.customerId).lean();
-        console.log(userDetails, "user");
+        let couponDetails = await couponSchema.findById(orderDetails.couponId).lean()
         res.render("admin/orderDetails", {
           superAdmin: true,
           subAdmin: true,
           orderDetails: orderDetails,
           productDetails: productDetails,
           userDetails,
+          couponDetails
         });
       } else {
         res.redirect("/error");
@@ -391,12 +392,14 @@ module.exports = {
     const orderId = req.params.id;
     try {
       let orderDetails = await Order.findById(orderId).lean();
+      console.log(orderDetails,"my orderdetails")
       if (orderDetails) {
         let productDetails = await productHelper.getProductsDetails(
           orderDetails._id
         );
         let userDetails = await User.findById(orderDetails.customerId).lean();
-
+          let couponDetails = await couponSchema.findById(orderDetails.couponId).lean()
+          console.log(couponDetails)
         if (orderDetails.status === "canceled" || orderDetails.status === "returned") {
           console.log("cancel product worked");
           res.render("user/myOrderDetails", {
@@ -404,6 +407,7 @@ module.exports = {
             productDetails: productDetails,
             userDetails,
             canceled: true,
+            couponDetails,
             user: req.session.user,
           });
         } else if (orderDetails.status !== "delivered") {
@@ -411,6 +415,7 @@ module.exports = {
             orderDetails: orderDetails,
             productDetails: productDetails,
             userDetails,
+            couponDetails,
             cancel: true,
             user: req.session.user,
           });
@@ -424,6 +429,7 @@ module.exports = {
           res.render("user/myOrderDetails", {
             orderDetails: orderDetails,
             productDetails: productDetails,
+            couponDetails,
             userDetails,
             returned,
             user: req.session.user,

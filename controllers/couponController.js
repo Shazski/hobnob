@@ -53,8 +53,6 @@ module.exports = {
       });
       res.redirect("/admin/coupon-management");
     } catch (error) {
-      console.log(error)
-      console.log("my unique code error")
       if (error.code === 11000) {
         req.session.couponError = "Coupon Already exists";
         res.redirect("/admin/coupon-management");
