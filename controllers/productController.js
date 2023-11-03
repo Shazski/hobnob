@@ -89,11 +89,13 @@ module.exports = {
        let categorys =  await categorySchema.find({_id:category,offerExpiryDate:{$gt:new Date()}
        })
        console.log(categorys[0],"catgeorudasdsad")
-        await productSchema.updateMany({category:categorys[0]._id,offerPrice :{$gt:categorys[0].offerAmount}},{
-          $inc :{
-            offerPrice:-categorys[0].offerAmount
-          }
-        })
+        if(categorys[0]) {
+          await productSchema.updateMany({category:categorys[0]._id,offerPrice :{$gt:categorys[0].offerAmount}},{
+            $inc :{
+              offerPrice:-categorys[0].offerAmount
+            }
+          })
+        }
         res.redirect("/admin/add-product");
       } else {
         res.json(productDetails).status(404);

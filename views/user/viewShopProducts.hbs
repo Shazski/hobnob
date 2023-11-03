@@ -87,8 +87,9 @@
             </div> <!-- card.// -->
 
     </div>
+    <div class="row">
     {{#each productDetails}}
-    <div class="col-md-3 ">
+    <div class="col-md-3 col-6 ">
         <div class="md-row d-flex justify-content-center gap-3">
             <div class="container">
                 <div class="card rounded-4 col-md-12" style="width: 13rem;height: 22.3rem;">
@@ -117,6 +118,7 @@
         </div>
     </div>
     {{/each}}
+    </div>
     {{#if noProduct}}
     <div style="">
         <img style="width: 350px;height: 300px;margin-left: 200px;" class="" src="/assets/672-6722829_no-result-found.png" alt="">
@@ -128,7 +130,6 @@
 </aside> <!-- col.// -->
 
 
-</div>
 <!--container end.//-->
 <nav aria-label="Page navigation example">
     <ul class="pagination pagination-sm justify-content-end me-2 mt-3" style="font-size: 8px;!important">
