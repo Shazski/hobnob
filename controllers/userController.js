@@ -270,15 +270,18 @@ module.exports = {
 
   getHomePage: async (req, res) => {
     let productDetails = await productSchema
-      .find({ stock: { $gt: 0 }, status: true })
+      .find({ stock: { $gt: 0 }, status: true }).limit(10)
+      .lean();
+    let newProductDetails = await productSchema
+      .find({ stock: { $gt: 0 }, status: true }).sort({created:1}).limit(5)
       .lean();
     let banner = await Banner.find().lean();
     let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
     console.log(cartCount,"cartCount")
     if(cartCount) {
-      res.render("user/home", { user: req.session.user, productDetails, banner,cartCount : cartCount.products.length});
+      res.render("user/home", { user: req.session.user, productDetails, banner,cartCount : cartCount.products.length, newProductDetails});
     } else {
-      res.render("user/home", { user: req.session.user, productDetails, banner});
+      res.render("user/home", { user: req.session.user, productDetails, banner, newProductDetails});
     }
   },
 
@@ -293,11 +296,10 @@ module.exports = {
       let user = await User.findById(userId).lean();
       let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
       let orderCount = await Order.find({ customerId: userId }).count().lean();
-      console.log(orderCount, "count");
       if (user && cartCount) {
         res.render("user/profile", { user: user, orderCount,cartCount : cartCount?.products.length });
       } else {
-        res.render("user/profile", { user: req.session.user._id, orderCount });
+        res.render("user/profile", { user: user, orderCount });
       }
     } else {
       res.clearCookie("userJwt");

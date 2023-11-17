@@ -58,6 +58,7 @@ module.exports = {
     } = req.body;
     try {
       for (const file of req.files) {
+        console.log(file.destination,"my destination")
         const outputPath = path.resolve(
           file.destination,
           "cropped",
@@ -110,7 +111,7 @@ module.exports = {
       let search = req.query.search || "";
       const userCount = await productSchema
         .find({
-          name: { $regex: new RegExp(`^${search}`, "i") },
+          name: { $regex: new RegExp(`${search}`, "i") },
         })
         .count();
       const pages = generatePages.generatePageNumbers(userCount);
@@ -121,7 +122,7 @@ module.exports = {
       const nextPage = hasNext ? page + 1 : pages;
       const productDetails = await productSchema
         .find({
-          name: { $regex: new RegExp(`^${search}`, "i") },
+          name: { $regex: new RegExp(`${search}`, "i") },
         })
         .skip((page - 1) * 10)
         .limit(10)
@@ -171,7 +172,6 @@ module.exports = {
           await sharp(file.destination + file.filename)
             .resize(parseInt(600), parseInt(600))
             .toFile(outputPath);
-          fs.unlinkSync(file.destination + file.filename);
         }
         product.images = req.files.map((value, index, array) => value.filename);
       }
