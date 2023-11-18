@@ -39,7 +39,6 @@ module.exports = {
         if (otpId) {
           setTimeout(async () => {
             await Otp.findByIdAndUpdate(otpId, { Otp: "" });
-            console.log("Otp removed try side");
           }, 60000);
           mail.sendEmail(email, `Your Otp is ${otpNumber}`);
         }
@@ -57,7 +56,6 @@ module.exports = {
         if (resp) {
           setTimeout(async () => {
             await Otp.findByIdAndUpdate(resp._id, { Otp: "" });
-            console.log("Otp removed catch side");
           }, 60000);
           mail.sendEmail(email, `Your Otp is ${otpNumber}`);
         }
@@ -94,7 +92,6 @@ module.exports = {
           req.session.user = userId;
           res.redirect("/");
         } else {
-          console.log("user signUp failed");
           res.status(500);
         }
       } else {
@@ -111,7 +108,6 @@ module.exports = {
   PostRefferalUserSignUp: async (req, res) => {
     const { name, blockStatus, email, otp, phone, password, refferalCode } =
       req.body;
-    console.log(refferalCode, "coodedede");
     try {
       const verifyOtp = await Otp.findOne({
         $and: [{ Email: email }, { Otp: otp }],
@@ -143,13 +139,11 @@ module.exports = {
                 },
               }
             );
-            console.log(userData, "useeeeerrrr");
             res.cookie("userJwt", token, { maxAge: 3600000 });
             req.session.user = userId;
             res.redirect("/");
           }
         } else {
-          console.log("user signUp failed");
           res.status(500);
         }
       } else {
@@ -255,7 +249,6 @@ module.exports = {
             res.redirect("/login");
           }
         } else {
-          console.log("not valid");
           req.session.errorLogin = "Email or password is invalid";
           res.redirect("/login");
         }
@@ -277,7 +270,6 @@ module.exports = {
       .lean();
     let banner = await Banner.find().lean();
     let cartCount = await Cart.findOne({user: req.session.user._id}).lean()
-    console.log(cartCount,"cartCount")
     if(cartCount) {
       res.render("user/home", { user: req.session.user, productDetails, banner,cartCount : cartCount.products.length, newProductDetails});
     } else {

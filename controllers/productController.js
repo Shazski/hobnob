@@ -58,7 +58,6 @@ module.exports = {
     } = req.body;
     try {
       for (const file of req.files) {
-        console.log(file.destination,"my destination")
         const outputPath = path.resolve(
           file.destination,
           "cropped",
@@ -89,7 +88,6 @@ module.exports = {
       if (productDetails) {
        let categorys =  await categorySchema.find({_id:category,offerExpiryDate:{$gt:new Date()}
        })
-       console.log(categorys[0],"catgeorudasdsad")
         if(categorys[0]) {
           await productSchema.updateMany({category:categorys[0]._id,offerPrice :{$gt:categorys[0].offerAmount}},{
             $inc :{
@@ -293,7 +291,6 @@ module.exports = {
           .limit(10)
           .lean();
         if (productDetails.length > 0) {
-          console.log("products found");
           res.render("user/viewShopProducts", {
             brands,
             productError: req.session.categoryError,
@@ -309,7 +306,6 @@ module.exports = {
             cartCount
           });
         } else {
-          console.log("no product");
           res.render("user/viewShopProducts", {
             brands,
             productError: req.session.categoryError,

@@ -26,7 +26,6 @@ const adminValid = (req, res, next) => {
       if (err) {
         next();
       } else {
-        console.log("admin valid");
         res.redirect("/admin/admin-panel");
       }
     });

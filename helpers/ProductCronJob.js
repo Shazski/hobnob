@@ -3,9 +3,8 @@ const categorySchema = require("../models/categorySchema");
 const cron = require("node-cron");
 
 
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule("*/10 * * * *", async () => {
   let currDate = new Date();
-  console.log("Running cron job to update category offer prices...");
   let categoryDetails = await categorySchema.find({
     offerExpiryDate: { $lte: currDate },
     offerAmount: { $gt: 0 },
@@ -30,8 +29,7 @@ cron.schedule("*/1 * * * *", async () => {
   }
 });
 
-cron.schedule("*/1 * * * *", async () => {
-  console.log("Running cron job to update offer prices...");
+cron.schedule("*/10 * * * *", async () => {
   let productDetails = await productSchema.find();
   let currDate = new Date();
   for (const product of productDetails) {

@@ -21,7 +21,6 @@ module.exports = {
               .skip((page - 1) * 10)
               .limit(10)
               .lean();
-              console.log(categoryDetails);
             res.render("admin/categoryManagement", {
               categoryError : req.session.categoryError,
               superAdmin: true,

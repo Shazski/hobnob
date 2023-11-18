@@ -10,7 +10,6 @@ module.exports = {
     const userId = req.session.user._id;
     if (userId) {
       let total = await cartHelper.getTotalAmount(userId);
-      console.log(total, "total");
       let products = await Cart.aggregate([
         {
           $match: {
@@ -84,7 +83,6 @@ module.exports = {
           "products.item": proId,
           "products.size": size,
         });
-        console.log(proPresent,"product present")
         if (proPresent) {
           let data = await Cart.updateOne(
             {
@@ -106,7 +104,6 @@ module.exports = {
           user: userId,
           products: [proObj],
         };
-        console.log(userCart, "userCart");
         let cartProduct = await Cart.create({
           products: [{ item: proId, quantity: 1, size: size }],
           user: userId,
@@ -143,7 +140,6 @@ module.exports = {
 
   getWishProducts: async(req, res) => {
    let wishProduct = await WishList.findOne({user:req.session.user._id}).populate("products").lean()
-   console.log(wishProduct,"wishproduct")
    if(wishProduct.products.length > 0) {
      res.render('user/wishlist',{wishProduct,user:req.session.user})
    } else {
@@ -153,11 +149,9 @@ module.exports = {
 
   changeQuantity: async (req, res) => {
     let { user, cartId, proId, count, quantity, size } = req.body;
-    console.log(size, "sizeeeee");
     count = parseInt(count);
     quantity = parseInt(quantity);
     if (count === -1 && quantity === 1) {
-      console.log(user, cartId, size, proId, "remove product true");
       await Cart.updateOne(
         { _id: cartId,user: user,
           $and: [{ user: user }, { _id: cartId }],
@@ -171,13 +165,10 @@ module.exports = {
       );
       res.json({ removeProduct: true });
     } else {
-      console.log(user, cartId, size, proId, "out of stock");
       let product = await cartProductHelper.getCartProductsDetails(user, proId);
       if (product[0].product.stock <= quantity && count === 1) {
-        console.log(user, cartId, size, proId, "out of stock gone");
         res.json({ status: false });
       } else if (product[0].product.stock <= quantity && count === -1) {
-        console.log(user, cartId, size, proId, "out of stock minus");
         await Cart.updateOne(
           {
             $and: [{ user: user }, { _id: cartId }],
@@ -192,9 +183,7 @@ module.exports = {
         let total = await cartHelper.getTotalAmount(user);
         res.json(total);
       } else {
-        console.log(user, cartId, size, proId, "out of stock last case worked");
         let cartschema = await Cart.findOne();
-        console.log(cartschema.products, "cartschema");
         await Cart.findOneAndUpdate(
           {
             $and: [{ user: user }, { _id: cartId }],
@@ -214,7 +203,6 @@ module.exports = {
 
   changeSize: async (req, res) => {
     let { size, proId } = req.body;
-    console.log(proId, "product Id");
     const userId = req.session.user._id;
     if (userId) {
       try {
@@ -237,10 +225,8 @@ module.exports = {
   },
 
   removeProduct: async (req, res) => {
-    console.log("is call comming");
     const proId = req.query.proId;
     const size = req.query.size;
-    console.log(size, "remove size");
     if (req.session.user) {
       const userId = req.session.user._id;
       try {
@@ -261,7 +247,6 @@ module.exports = {
   },
   removeWishProduct: async (req, res) => {
     const proId = req.query.proId;
-    console.log(proId,'id comming')
     if (req.session.user) {
       const userId = req.session.user._id;
       try {
@@ -288,7 +273,6 @@ module.exports = {
         totalAmount:parseInt(amount)
       })
       let products = await Cart.findOne({user:req.session.user._id}).populate("products.item")
-      console.log(products,"checking the products")
       for (const product of products.products) {
         if(product.quantity > product.item.stock) {
           res.json({success:false})

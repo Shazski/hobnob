@@ -21,7 +21,6 @@ module.exports = {
         .skip((page - 1) * 10)
         .limit(10)
         .lean();
-      console.log(couponDetails);
       res.render("admin/couponManagement", {
         categoryError: req.session.categoryError,
         superAdmin: true,
@@ -71,7 +70,6 @@ module.exports = {
   },
 
   validateCoupon: async (req, res) => {
-    console.log(req.body);
     const { couponCode } = req.body;
     try {
       if (couponCode !== "") {

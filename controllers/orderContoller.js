@@ -97,12 +97,10 @@ module.exports = {
         res.json({ paymentRes });
         await Cart.findOneAndDelete({ user: userId });
       } else if (paymentMethod === "wallet") {
-        console.log(req.body, "wallet worked");
         let userWallet = await User.findOne(
           { _id: req.session.user._id },
           { _id: false, wallet: true }
         );
-        console.log(userWallet.wallet, total.totalAmount);
         if (userWallet.wallet >= total.totalAmount) {
           await User.findOneAndUpdate(
             { _id: req.session.user._id },
@@ -139,7 +137,6 @@ module.exports = {
           res.json({ wallet: true });
           await Cart.findOneAndDelete({ user: userId });
         } else {
-          console.log("error happend");
           res.json({
             walletError: true,
             error: "wallet amount is less than total amount",
@@ -169,7 +166,6 @@ module.exports = {
         .limit(10)
         .sort({ orderDate: -1 })
         .lean();
-      console.log(orderDetails);
       if (status === "pending") {
         res.render("admin/viewOrder", {
           superAdmin: true,
@@ -265,7 +261,6 @@ module.exports = {
     try {
       let orderDetails = await Order.findById(orderId).lean();
       if (orderDetails) {
-        console.log(orderDetails);
         let productDetails = await productHelper.getProductsDetails(
           orderDetails._id
         );
@@ -289,7 +284,6 @@ module.exports = {
 
   changeOrderStatus: async (req, res) => {
     const { status } = req.body;
-    console.log(status, "status");
     const orderId = req.params.id;
     try {
       const currentDate = new Date();
@@ -392,16 +386,13 @@ module.exports = {
     const orderId = req.params.id;
     try {
       let orderDetails = await Order.findById(orderId).lean();
-      console.log(orderDetails,"my orderdetails")
       if (orderDetails) {
         let productDetails = await productHelper.getProductsDetails(
           orderDetails._id
         );
         let userDetails = await User.findById(orderDetails.customerId).lean();
           let couponDetails = await couponSchema.findById(orderDetails.couponId).lean()
-          console.log(couponDetails)
         if (orderDetails.status === "canceled" || orderDetails.status === "returned") {
-          console.log("cancel product worked");
           res.render("user/myOrderDetails", {
             orderDetails: orderDetails,
             productDetails: productDetails,
@@ -469,7 +460,6 @@ module.exports = {
       for (const orderProduct of orderProducts.items) {
         const productId = orderProduct.item;
         const quantityToIncrement = orderProduct.quantity;
-        console.log(productId, quantityToIncrement, "hello got it");
         await Product.findOneAndUpdate(
           { _id: productId },
           { status: true, $inc: { stock: quantityToIncrement } }
@@ -547,7 +537,6 @@ module.exports = {
         .limit(10)
         .sort({ orderDate: -1 })
         .lean();
-      console.log(orderDetails, "userOrderDetails");
       res.render("admin/viewUserOrders", {
         superAdmin: true,
         subAdmin: true,
@@ -572,8 +561,6 @@ module.exports = {
       let productData = await Order.findOne({ _id: orderId }).populate(
         "items.item"
       );
-      console.log(productData, "product datas");
-      console.log(orderDetails, "order details of invoice");
       invoiceHelper.downloadInvoice(productData);
       res.json({ success: true });
     } catch (error) {

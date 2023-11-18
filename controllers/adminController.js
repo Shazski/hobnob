@@ -15,7 +15,6 @@ module.exports = {
 
   postAdminLogin: async (req, res) => {
     const { userName, password } = req.body;
-    console.log(req.body, "body");
     let adminExists = await Admin.findOne({ userName: userName });
 
     if (adminExists) {
@@ -26,7 +25,6 @@ module.exports = {
           { userName: userName },
           { lastLogin: new Date() }
         );
-        console.log(updateAdminLogin, "update time");
         if (updateAdminLogin) {
           if (updateAdminLogin.role === "superAdmin") {
             let superAdminToken = sign(
@@ -79,7 +77,6 @@ module.exports = {
     ]);
     const productIds = mostSellingProduct.map((item) => item._id);
     const quantity = mostSellingProduct.map((item) => item.totalQuantity);
-    console.log(quantity, "my quantity");
     let productDetails = await productSchema
       .find({ _id: { $in: productIds } })
       .lean();
@@ -193,7 +190,6 @@ module.exports = {
       let data = await User.findByIdAndUpdate(userId, {
         blockStatus: blockData,
       });
-      console.log(data, "blocked data");
       res.redirect("/admin/user-management");
     } catch (error) {
       console.log(error);
@@ -296,16 +292,13 @@ module.exports = {
       let labels;
       let data;
       let Count;
-      console.log("outside");
       orders.forEach((order) => {
-        console.log("inside");
         const orderDate = moment(order.orderDate, "ddd, MMM D, YYYY h:mm A");
         const dayMonthYear = orderDate.format("YYYY-MM-DD");
         const monthYear = orderDate.format("YYYY-MM");
         const year = orderDate.format("YYYY");
 
         if (req.url === "/count-orders-by-day") {
-          console.log("count");
           // Count orders by day
           if (!orderCountsByDay[dayMonthYear]) {
             orderCountsByDay[dayMonthYear] = order.totalAmount;
@@ -341,7 +334,6 @@ module.exports = {
             moment(entry._id, "YYYY-MM-DD").format("DD MMM YYYY")
           );
           data = ordersByDay.map((entry) => entry.count);
-          // console.log(data,"data",ordersByDay,"orderby day")
         } else if (req.url === "/count-orders-by-month") {
           // Count orders by month-year
           if (!orderCountsByMonthYear[monthYear]) {
@@ -416,8 +408,6 @@ module.exports = {
           data = ordersByYear.map((entry) => entry.count);
         }
       });
-      console.log(data);
-      console.log(labels);
 
       res.json({ labels, data, Count });
     } catch (err) {
